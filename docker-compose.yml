@@ -3,9 +3,10 @@ version: "3.8"
 services:
   app:
     container_name: service
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: alexanderbryksin/products_microservice:latest
+#    build:
+#      context: .
+#      dockerfile: Dockerfile
     ports:
       - 5555:5555
     environment:
