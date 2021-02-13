@@ -1,0 +1,14 @@
+version: "3.8"
+
+services:
+  app:
+    container_name: service
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 5555:5555
+    environment:
+      - PORT=5555
+    restart: always
+
