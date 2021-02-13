@@ -38,7 +38,7 @@ deps-cleancache:
 	go clean -modcache
 
 # ==============================================================================
-# Tools commands
+# Linters
 
 run-linter:
 	echo "Starting linters"

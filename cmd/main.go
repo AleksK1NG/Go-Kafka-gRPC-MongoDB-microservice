@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/AleksK1NG/products-microservice/config"
+	"github.com/AleksK1NG/products-microservice/pkg/logger"
 )
 
 func main() {
@@ -14,6 +15,17 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	appLogger := logger.NewApiLogger(cfg)
+	appLogger.InitLogger()
+	appLogger.Info("Starting user server")
+	appLogger.Infof(
+		"AppVersion: %s, LogLevel: %s, DevelopmentMode: %s",
+		cfg.AppVersion,
+		cfg.Logger.Level,
+		cfg.Server.Development,
+	)
+	appLogger.Infof("Success parsed config: %#v", cfg.AppVersion)
 
 	http.HandleFunc("/api/v1", func(w http.ResponseWriter, r *http.Request) {
 		log.Printf("REQUEST: %v", r.RemoteAddr)
