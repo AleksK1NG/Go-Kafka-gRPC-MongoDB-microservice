@@ -11,6 +11,8 @@ type Config struct {
 	AppVersion string
 	Server     Server
 	Logger     Logger
+	Jaeger     Jaeger
+	Metrics    Metrics
 }
 
 // Server config
@@ -25,6 +27,19 @@ type Logger struct {
 	DisableStacktrace bool
 	Encoding          string
 	Level             string
+}
+
+// Metrics config
+type Metrics struct {
+	URL         string
+	ServiceName string
+}
+
+// Jaeger config
+type Jaeger struct {
+	Host        string
+	ServiceName string
+	LogSpans    bool
 }
 
 func exportConfig() error {

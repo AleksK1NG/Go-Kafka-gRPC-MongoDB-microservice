@@ -8,3 +8,12 @@ Logger:
   DisableStacktrace: false
   Encoding: json
   Level: info
+
+Metrics:
+  Url: 0.0.0.0:7071
+  ServiceName: user_microservice
+
+Jaeger:
+  Host: localhost:6831
+  ServiceName: products_microservice
+  LogSpans: false

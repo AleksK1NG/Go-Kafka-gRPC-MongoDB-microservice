@@ -2,7 +2,7 @@
 
 local:
 	echo "Starting local docker compose"
-	docker-compose up --build
+	docker-compose -f docker-compose.local.yml up --build
 
 gen:
 	GO111MODULE=on  swagger generate spec -o ./api/swagger/swagger.yaml --scan-models

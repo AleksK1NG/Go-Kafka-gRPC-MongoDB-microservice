@@ -1,0 +1,71 @@
+version: "3.8"
+
+services:
+  redis:
+    image: redis:6-alpine
+    container_name: user_redis
+    ports:
+      - "6379:6379"
+    restart: always
+    networks:
+      - products_network
+
+  prometheus:
+    container_name: prometheus_container
+    image: prom/prometheus
+    volumes:
+      - ./monitoring/prometheus-local.yml:/etc/prometheus/prometheus.yml:Z
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention=20d'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+    ports:
+      - '9090:9090'
+    networks:
+      - products_network
+
+
+  node_exporter:
+    container_name: node_exporter_container
+    image: prom/node-exporter
+    ports:
+      - '9101:9100'
+    networks:
+      - products_network
+
+  grafana:
+    container_name: grafana_container
+    image: grafana/grafana
+    ports:
+      - '3000:3000'
+    networks:
+      - products_network
+
+  jaeger:
+    container_name: jaeger_container
+    image: jaegertracing/all-in-one:1.21
+    environment:
+      - COLLECTOR_ZIPKIN_HTTP_PORT=9411
+    ports:
+      - 5775:5775/udp
+      - 6831:6831/udp
+      - 6832:6832/udp
+      - 5778:5778
+      - 16686:16686
+      - 14268:14268
+      - 14250:14250
+      - 9411:9411
+    networks:
+      - products_network
+
+
+#volumes:
+#  main_pgdata:
+#  user_pgdata:
+#  prometheus-data:
+
+networks:
+  products_network:
+    driver: bridge
