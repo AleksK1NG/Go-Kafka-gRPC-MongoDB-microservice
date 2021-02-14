@@ -47,7 +47,12 @@ func (s *server) Run() error {
 	productMongoRepo := repository.NewProductMongoRepo()
 	productUC := usecase.NewProductUC(productMongoRepo, s.log)
 
-	l, err := net.Listen("tcp", s.cfg.Server.Port)
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = s.cfg.Server.Port
+	}
+
+	l, err := net.Listen("tcp", port)
 	if err != nil {
 		return errors.Wrap(err, "net.Listen")
 	}
@@ -72,7 +77,7 @@ func (s *server) Run() error {
 	grpc_prometheus.Register(grpcServer)
 
 	go func() {
-		s.log.Infof("GRPC Server is listening on port: %v", s.cfg.Server.Port)
+		s.log.Infof("GRPC Server is listening on port: %s", port)
 		s.log.Fatal(grpcServer.Serve(l))
 	}()
 
