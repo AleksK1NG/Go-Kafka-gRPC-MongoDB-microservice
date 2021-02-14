@@ -14,6 +14,10 @@ type productUC struct {
 	log         logger.Logger
 }
 
+func NewProductUC(productRepo product.MongoRepository, log logger.Logger) *productUC {
+	return &productUC{productRepo: productRepo, log: log}
+}
+
 func (p *productUC) Create(ctx context.Context, product *models.Product) (*models.Product, error) {
 	panic("implement me")
 }

@@ -2,6 +2,11 @@ AppVersion: 1.0.0
 Server:
   Port: :5555
   Development: true
+  Timeout: 15
+  ReadTimeout: 5
+  WriteTimeout: 5
+  MaxConnectionIdle: 5
+  MaxConnectionAge: 5
 
 Logger:
   DisableCaller: false

@@ -10,6 +10,10 @@ import (
 type productMongoRepo struct {
 }
 
+func NewProductMongoRepo() *productMongoRepo {
+	return &productMongoRepo{}
+}
+
 func (p *productMongoRepo) Create(ctx context.Context, product *models.Product) (*models.Product, error) {
 	panic("implement me")
 }
