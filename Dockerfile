@@ -18,7 +18,7 @@ RUN go mod download
 COPY . .
 
 # Build the application
-# ggo build -o [name] [path to file]
+# go build -o [name] [path to file]
 RUN go build -o service cmd/main.go
 
 # Move to /dist directory as the place for resulting binary folder
@@ -30,10 +30,13 @@ RUN cp /build/service .
 ############################
 # STEP 2 build a small image
 ############################
-FROM scratch
+FROM alpine:latest
+RUN apk --no-cache add ca-certificates
 
+COPY . .
 COPY --from=builder /dist/service /
 #COPY ./database/data.json /database/data.json
+# Copy the code into the container
 
 EXPOSE 5555
 

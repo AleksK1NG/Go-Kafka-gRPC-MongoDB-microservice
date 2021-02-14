@@ -50,5 +50,5 @@ func main() {
 		}
 	})
 
-	log.Fatal(http.ListenAndServe(cfg.Server.Port, nil))
+	log.Fatal(http.ListenAndServe(":5000", nil))
 }
