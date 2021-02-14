@@ -1,0 +1,85 @@
+syntax = "proto3";
+
+import "google/protobuf/timestamp.proto";
+
+//protoc --go_out=plugins=grpc:. *.proto
+
+package productsService;
+option go_package = ".;productsService";
+
+message Product {
+  string ProductID = 1;
+  string CategoryID = 2;
+  string Name = 3;
+  string Description = 4;
+  double Price = 5;
+  string ImageURL = 6;
+  repeated string Photos = 7;
+  int64 Quantity = 8;
+  int64 Rating = 9;
+  google.protobuf.Timestamp CreatedAt = 10;
+  google.protobuf.Timestamp UpdatedAt = 11;
+}
+
+message Empty {}
+
+message CreateReq {
+  string CategoryID = 1;
+  string Name = 2;
+  string Description = 3;
+  double Price = 4;
+  string ImageURL = 5;
+  repeated string Photos = 6;
+  int64 Quantity = 7;
+  int64 Rating = 8;
+}
+
+message CreateRes {
+  Product Product = 1;
+}
+
+message UpdateReq {
+  string ProductID = 1;
+  string CategoryID = 2;
+  string Name = 3;
+  string Description = 4;
+  double Price = 5;
+  string ImageURL = 6;
+  repeated string Photos = 7;
+  int64 Quantity = 8;
+  int64 Rating = 9;
+}
+
+message UpdateRes {
+  Product Product = 1;
+}
+
+message GetByIDReq {
+  string ProductID = 1;
+}
+
+message GetByIDRes {
+  Product Product = 1;
+}
+
+message SearchReq {
+  string Search = 1;
+  int64 page = 2;
+  int64 size = 3;
+}
+
+message SearchRes {
+  int64 TotalCount = 1;
+  int64 TotalPages = 2;
+  int64 Page = 3;
+  int64 Size = 4;
+  bool HasMore = 5;
+  repeated Product Products = 6;
+}
+
+service ProductsService {
+  rpc Create(UpdateReq) returns (UpdateRes) {}
+  rpc Update(UpdateReq) returns (UpdateRes) {}
+  rpc GetByID(GetByIDReq) returns (GetByIDRes) {}
+  rpc Search(SearchReq) returns (SearchRes) {}
+}
