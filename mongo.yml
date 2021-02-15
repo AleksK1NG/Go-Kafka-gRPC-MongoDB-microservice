@@ -1,0 +1,174 @@
+version: "3.4"
+
+services:
+  mongotmp:
+    container_name: mongotmp
+    image: mongo:4.2.8-bionic
+    volumes:
+      - ./keyfile:/keyfile
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=${username}
+      - MONGO_INITDB_ROOT_PASSWORD=${password}
+    ports:
+      - 27047:27047
+    healthcheck:
+      test:
+        [
+            "CMD",
+            "mongodb",
+            "admin",
+            "--port",
+            "27047",
+            "-u",
+            "${username}",
+            "-p",
+            "${password}",
+            "--eval",
+            'rs.initiate( { _id : "rs0",members: [{ _id: 0,host: "mongotmp:27047" }]}) ; db.getSiblingDB("admin").createUser({user: "${username}",pwd: "${password}",roles: [{role: "userAdminAnyDatabase",db:"admin"},{role: "clusterAdmin",db:"admin"}]})',
+        ]
+      interval: 10s
+      start_period: 10s
+    command: [
+        "--transitionToAuth",
+        "-keyFile",
+        "/keyfile",
+        "--replSet",
+        "rs0",
+        "--bind_ip_all",
+        "--port",
+        "27047"
+    ]
+  mongo2:
+    container_name: mongo2
+    image: mongo:4.2.8-bionic
+    volumes:
+      - ./keyfile:/keyfile
+    ports:
+      - 27027:27027
+    depends_on:
+      - mongotmp
+    healthcheck:
+      test:
+        [
+            "CMD",
+            "mongodb",
+            "--host",
+            "mongotmp",
+            "--port",
+            "27047",
+            "admin",
+            "-u",
+            "${username}",
+            "-p",
+            "${password}",
+            "--eval",
+            'rs.add( { host: "mongo2:27027"} )',
+        ]
+      interval: 10s
+      start_period: 20s
+    command:
+      [
+          "-keyFile",
+          "/keyfile",
+          "--replSet",
+          "rs0",
+          "--bind_ip_all",
+          "--port",
+          "27027",
+      ]
+  mongo3:
+    container_name: mongo3
+    image: mongo:4.2.8-bionic
+    volumes:
+      - ./keyfile:/keyfile
+    ports:
+      - 27037:27037
+    depends_on:
+      - mongotmp
+      - mongo2
+    healthcheck:
+      test:
+        [
+            "CMD",
+            "mongodb",
+            "--host",
+            "mongotmp",
+            "--port",
+            "27047",
+            "admin",
+            "-u",
+            "${username}",
+            "-p",
+            "${password}",
+            "--eval",
+            'rs.add( { host: "mongo3:27037"} )',
+        ]
+      interval: 10s
+      start_period: 30s
+    command:
+      [
+          "-keyFile",
+          "/keyfile",
+          "--replSet",
+          "rs0",
+          "--bind_ip_all",
+          "--port",
+          "27037",
+      ]
+  mongo1:
+    container_name: mongo1
+    image: mongo:4.2.8-bionic
+    volumes:
+      - ./keyfile:/keyfile
+    ports:
+      - 27017:27017
+    depends_on:
+      - mongotmp
+      - mongo2
+      - mongo3
+    healthcheck:
+      test:
+        [
+            "CMD",
+            "mongodb",
+            "--host",
+            "mongotmp",
+            "--port",
+            "27047",
+            "admin",
+            "-u",
+            "${username}",
+            "-p",
+            "${password}",
+            "--eval",
+            'rs.add( { host: "mongo1:27017"} );db.adminCommand( { replSetStepDown: 1,force:true } );',
+        ]
+      interval: 10s
+      start_period: 40s
+    command:
+      [
+          "-keyFile",
+          "/keyfile",
+          "--replSet",
+          "rs0",
+          "--bind_ip_all"
+      ]
+  remover:
+    container_name: remover
+    image: mongo:4.2.8-bionic
+    volumes:
+      - ./keyfile:/keyfile
+    depends_on:
+      - mongo1
+    healthcheck:
+      test: /usr/bin/mongodb "mongodb://${username}:${password}@mongo1:27017,mongo2:27027,mongo3:27037/admin?replicaSet=rs0" --eval 'rs.remove("mongotmp:27047")'
+      interval: 10s
+      start_period: 45s
+    command:
+      [
+          "-keyFile",
+          "/keyfile",
+          "--replSet",
+          "rs0",
+          "--bind_ip_all"
+      ]
