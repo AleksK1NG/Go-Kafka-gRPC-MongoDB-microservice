@@ -14,6 +14,7 @@ import (
 
 	"github.com/AleksK1NG/products-microservice/internal/models"
 	productErrors "github.com/AleksK1NG/products-microservice/pkg/product_errors"
+	"github.com/AleksK1NG/products-microservice/pkg/utils"
 )
 
 const (
@@ -98,6 +99,74 @@ func (p *productMongoRepo) GetByID(ctx context.Context, productID primitive.Obje
 	return &prod, nil
 }
 
-func (p *productMongoRepo) Search(ctx context.Context, search string, page, size int64) ([]*models.Product, error) {
-	panic("implement me")
+// Search Search product
+func (p *productMongoRepo) Search(ctx context.Context, search string, pagination *utils.Pagination) (*models.ProductsList, error) {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "productMongoRepo.Search")
+	defer span.Finish()
+
+	collection := p.mongoDB.Database(productsDB).Collection(productsCollection)
+
+	f := bson.D{
+		{"$or",
+			bson.A{
+				bson.D{{"name", primitive.Regex{
+					Pattern: search,
+					Options: "gi",
+				}}},
+				bson.D{{"description", primitive.Regex{
+					Pattern: search,
+					Options: "gi",
+				}}},
+			}},
+	}
+
+	count, err := collection.CountDocuments(ctx, f)
+	if err != nil {
+		return nil, errors.Wrap(err, "CountDocuments")
+	}
+	if count == 0 {
+		return &models.ProductsList{
+			TotalCount: 0,
+			TotalPages: 0,
+			Page:       0,
+			Size:       0,
+			HasMore:    false,
+			Products:   make([]*models.Product, 0),
+		}, nil
+	}
+
+	limit := int64(pagination.GetLimit())
+	skip := int64(pagination.GetOffset())
+	cursor, err := collection.Find(ctx, f, &options.FindOptions{
+		Limit: &limit,
+		Skip:  &skip,
+	})
+	if err != nil {
+		return nil, errors.Wrap(err, "Find")
+	}
+	defer cursor.Close(ctx)
+
+	var products []*models.Product
+	for cursor.Next(ctx) {
+		var prod models.Product
+		if err := cursor.Decode(&prod); err != nil {
+			return nil, errors.Wrap(err, "Find")
+		}
+		products = append(products, &prod)
+	}
+
+	if err := cursor.Err(); err != nil {
+		return nil, errors.Wrap(err, "cursor.Err")
+	}
+
+	log.Printf("PRODUCTS: %-v", products)
+
+	return &models.ProductsList{
+		TotalCount: count,
+		TotalPages: int64(pagination.GetTotalPages(int(count))),
+		Page:       int64(pagination.GetPage()),
+		Size:       int64(pagination.GetSize()),
+		HasMore:    pagination.GetHasMore(int(count)),
+		Products:   products,
+	}, nil
 }
