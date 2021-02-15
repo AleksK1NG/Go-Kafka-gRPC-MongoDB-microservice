@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/opentracing/opentracing-go"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 
 	"github.com/AleksK1NG/products-microservice/internal/models"
 	"github.com/AleksK1NG/products-microservice/internal/product"
@@ -32,7 +33,7 @@ func (p *productUC) Update(ctx context.Context, product *models.Product) (*model
 	panic("implement me")
 }
 
-func (p *productUC) GetByID(ctx context.Context, productID string) (*models.Product, error) {
+func (p *productUC) GetByID(ctx context.Context, productID primitive.ObjectID) (*models.Product, error) {
 	panic("implement me")
 }
 
