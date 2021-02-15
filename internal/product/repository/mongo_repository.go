@@ -57,7 +57,7 @@ func (p *productMongoRepo) Update(ctx context.Context, product *models.Product) 
 	panic("implement me")
 }
 
-func (p *productMongoRepo) GetByID(ctx context.Context, productID string) (*models.Product, error) {
+func (p *productMongoRepo) GetByID(ctx context.Context, productID primitive.ObjectID) (*models.Product, error) {
 	panic("implement me")
 }
 
