@@ -12,6 +12,7 @@ services:
 
   prometheus:
     container_name: prometheus_container
+    restart: always
     image: prom/prometheus
     volumes:
       - ./monitoring/prometheus-local.yml:/etc/prometheus/prometheus.yml:Z
@@ -29,6 +30,7 @@ services:
 
   node_exporter:
     container_name: node_exporter_container
+    restart: always
     image: prom/node-exporter
     ports:
       - '9101:9100'
@@ -37,6 +39,7 @@ services:
 
   grafana:
     container_name: grafana_container
+    restart: always
     image: grafana/grafana
     ports:
       - '3000:3000'
@@ -45,6 +48,7 @@ services:
 
   jaeger:
     container_name: jaeger_container
+    restart: always
     image: jaegertracing/all-in-one:1.21
     environment:
       - COLLECTOR_ZIPKIN_HTTP_PORT=9411
@@ -60,7 +64,20 @@ services:
     networks:
       - products_network
 
+  mongodb:
+    image: mongo:latest
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: admin
+      MONGODB_DATABASE: products
+    ports:
+      - 27017:27017
+    volumes:
+      - mongodb_data_container:/data/db
 
+volumes:
+  mongodb_data_container:
 #volumes:
 #  main_pgdata:
 #  user_pgdata:

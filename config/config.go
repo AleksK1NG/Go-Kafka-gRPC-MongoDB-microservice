@@ -14,6 +14,7 @@ type Config struct {
 	Logger     Logger
 	Jaeger     Jaeger
 	Metrics    Metrics
+	MongoDB    MongoDB
 }
 
 // Server config
@@ -46,6 +47,13 @@ type Jaeger struct {
 	Host        string
 	ServiceName string
 	LogSpans    bool
+}
+
+type MongoDB struct {
+	URI      string
+	User     string
+	Password string
+	DB       string
 }
 
 func exportConfig() error {

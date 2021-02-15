@@ -22,3 +22,9 @@ Jaeger:
   Host: localhost:6831
   ServiceName: products_microservice
   LogSpans: false
+
+MongoDB:
+  URI: "mongodb://localhost:27017"
+  User: "admin"
+  Password: "admin"
+  DB: "products"
