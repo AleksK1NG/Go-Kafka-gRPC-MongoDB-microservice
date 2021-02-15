@@ -11,6 +11,7 @@ import (
 	"github.com/AleksK1NG/products-microservice/internal/product"
 	grpcErrors "github.com/AleksK1NG/products-microservice/pkg/grpc_errors"
 	"github.com/AleksK1NG/products-microservice/pkg/logger"
+	"github.com/AleksK1NG/products-microservice/pkg/utils"
 	"github.com/AleksK1NG/products-microservice/proto/product"
 )
 
@@ -129,7 +130,7 @@ func (p *productService) Search(ctx context.Context, req *productsService.Search
 	span, ctx := opentracing.StartSpanFromContext(ctx, "productService.Search")
 	defer span.Finish()
 
-	products, err := p.productUC.Search(ctx, req.GetSearch(), req.GetPage(), req.GetSize())
+	products, err := p.productUC.Search(ctx, req.GetSearch(), utils.NewPaginationQuery(int(req.GetSize()), int(req.GetPage())))
 	if err != nil {
 		p.log.Errorf("productUC.Search: %v", err)
 		return nil, grpcErrors.ErrorResponse(err, err.Error())
@@ -137,5 +138,12 @@ func (p *productService) Search(ctx context.Context, req *productsService.Search
 
 	p.log.Infof("PRODUCTS: %-v", products)
 
-	return nil, nil
+	return &productsService.SearchRes{
+		TotalCount: products.TotalCount,
+		TotalPages: products.TotalPages,
+		Page:       products.Page,
+		Size:       products.Size,
+		HasMore:    products.HasMore,
+		Products:   products.ToProtoList(),
+	}, nil
 }

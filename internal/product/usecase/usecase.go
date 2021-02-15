@@ -9,6 +9,7 @@ import (
 	"github.com/AleksK1NG/products-microservice/internal/models"
 	"github.com/AleksK1NG/products-microservice/internal/product"
 	"github.com/AleksK1NG/products-microservice/pkg/logger"
+	"github.com/AleksK1NG/products-microservice/pkg/utils"
 )
 
 // productUC
@@ -44,8 +45,8 @@ func (p *productUC) GetByID(ctx context.Context, productID primitive.ObjectID) (
 }
 
 // Search Search products
-func (p *productUC) Search(ctx context.Context, search string, page, size int64) ([]*models.Product, error) {
+func (p *productUC) Search(ctx context.Context, search string, pagination *utils.Pagination) (*models.ProductsList, error) {
 	span, ctx := opentracing.StartSpanFromContext(ctx, "productUC.Search")
 	defer span.Finish()
-	return p.productRepo.Search(ctx, search, page, size)
+	return p.productRepo.Search(ctx, search, pagination)
 }
