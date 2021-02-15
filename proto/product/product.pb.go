@@ -845,9 +845,9 @@ var file_product_proto_rawDesc = []byte{
 	0x73, 0x32, 0xa4, 0x02, 0x0a, 0x0f, 0x50, 0x72, 0x6f, 0x64, 0x75, 0x63, 0x74, 0x73, 0x53, 0x65,
 	0x72, 0x76, 0x69, 0x63, 0x65, 0x12, 0x42, 0x0a, 0x06, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x12,
 	0x1a, 0x2e, 0x70, 0x72, 0x6f, 0x64, 0x75, 0x63, 0x74, 0x73, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63,
-	0x65, 0x2e, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x52, 0x65, 0x71, 0x1a, 0x1a, 0x2e, 0x70, 0x72,
-	0x6f, 0x64, 0x75, 0x63, 0x74, 0x73, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x2e, 0x55, 0x70,
-	0x64, 0x61, 0x74, 0x65, 0x52, 0x65, 0x73, 0x22, 0x00, 0x12, 0x42, 0x0a, 0x06, 0x55, 0x70, 0x64,
+	0x65, 0x2e, 0x43, 0x72, 0x65, 0x61, 0x74, 0x65, 0x52, 0x65, 0x71, 0x1a, 0x1a, 0x2e, 0x70, 0x72,
+	0x6f, 0x64, 0x75, 0x63, 0x74, 0x73, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63, 0x65, 0x2e, 0x43, 0x72,
+	0x65, 0x61, 0x74, 0x65, 0x52, 0x65, 0x73, 0x22, 0x00, 0x12, 0x42, 0x0a, 0x06, 0x55, 0x70, 0x64,
 	0x61, 0x74, 0x65, 0x12, 0x1a, 0x2e, 0x70, 0x72, 0x6f, 0x64, 0x75, 0x63, 0x74, 0x73, 0x53, 0x65,
 	0x72, 0x76, 0x69, 0x63, 0x65, 0x2e, 0x55, 0x70, 0x64, 0x61, 0x74, 0x65, 0x52, 0x65, 0x71, 0x1a,
 	0x1a, 0x2e, 0x70, 0x72, 0x6f, 0x64, 0x75, 0x63, 0x74, 0x73, 0x53, 0x65, 0x72, 0x76, 0x69, 0x63,
@@ -898,11 +898,11 @@ var file_product_proto_depIdxs = []int32{
 	0,  // 3: productsService.UpdateRes.Product:type_name -> productsService.Product
 	0,  // 4: productsService.GetByIDRes.Product:type_name -> productsService.Product
 	0,  // 5: productsService.SearchRes.Products:type_name -> productsService.Product
-	4,  // 6: productsService.ProductsService.Create:input_type -> productsService.UpdateReq
+	2,  // 6: productsService.ProductsService.Create:input_type -> productsService.CreateReq
 	4,  // 7: productsService.ProductsService.Update:input_type -> productsService.UpdateReq
 	6,  // 8: productsService.ProductsService.GetByID:input_type -> productsService.GetByIDReq
 	8,  // 9: productsService.ProductsService.Search:input_type -> productsService.SearchReq
-	5,  // 10: productsService.ProductsService.Create:output_type -> productsService.UpdateRes
+	3,  // 10: productsService.ProductsService.Create:output_type -> productsService.CreateRes
 	5,  // 11: productsService.ProductsService.Update:output_type -> productsService.UpdateRes
 	7,  // 12: productsService.ProductsService.GetByID:output_type -> productsService.GetByIDRes
 	9,  // 13: productsService.ProductsService.Search:output_type -> productsService.SearchRes
@@ -1072,7 +1072,7 @@ const _ = grpc.SupportPackageIsVersion6
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://godoc.org/google.golang.org/grpc#ClientConn.NewStream.
 type ProductsServiceClient interface {
-	Create(ctx context.Context, in *UpdateReq, opts ...grpc.CallOption) (*UpdateRes, error)
+	Create(ctx context.Context, in *CreateReq, opts ...grpc.CallOption) (*CreateRes, error)
 	Update(ctx context.Context, in *UpdateReq, opts ...grpc.CallOption) (*UpdateRes, error)
 	GetByID(ctx context.Context, in *GetByIDReq, opts ...grpc.CallOption) (*GetByIDRes, error)
 	Search(ctx context.Context, in *SearchReq, opts ...grpc.CallOption) (*SearchRes, error)
@@ -1086,8 +1086,8 @@ func NewProductsServiceClient(cc grpc.ClientConnInterface) ProductsServiceClient
 	return &productsServiceClient{cc}
 }
 
-func (c *productsServiceClient) Create(ctx context.Context, in *UpdateReq, opts ...grpc.CallOption) (*UpdateRes, error) {
-	out := new(UpdateRes)
+func (c *productsServiceClient) Create(ctx context.Context, in *CreateReq, opts ...grpc.CallOption) (*CreateRes, error) {
+	out := new(CreateRes)
 	err := c.cc.Invoke(ctx, "/productsService.ProductsService/Create", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -1124,7 +1124,7 @@ func (c *productsServiceClient) Search(ctx context.Context, in *SearchReq, opts 
 
 // ProductsServiceServer is the server API for ProductsService service.
 type ProductsServiceServer interface {
-	Create(context.Context, *UpdateReq) (*UpdateRes, error)
+	Create(context.Context, *CreateReq) (*CreateRes, error)
 	Update(context.Context, *UpdateReq) (*UpdateRes, error)
 	GetByID(context.Context, *GetByIDReq) (*GetByIDRes, error)
 	Search(context.Context, *SearchReq) (*SearchRes, error)
@@ -1134,7 +1134,7 @@ type ProductsServiceServer interface {
 type UnimplementedProductsServiceServer struct {
 }
 
-func (*UnimplementedProductsServiceServer) Create(context.Context, *UpdateReq) (*UpdateRes, error) {
+func (*UnimplementedProductsServiceServer) Create(context.Context, *CreateReq) (*CreateRes, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method Create not implemented")
 }
 func (*UnimplementedProductsServiceServer) Update(context.Context, *UpdateReq) (*UpdateRes, error) {
@@ -1152,7 +1152,7 @@ func RegisterProductsServiceServer(s *grpc.Server, srv ProductsServiceServer) {
 }
 
 func _ProductsService_Create_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(UpdateReq)
+	in := new(CreateReq)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
@@ -1164,7 +1164,7 @@ func _ProductsService_Create_Handler(srv interface{}, ctx context.Context, dec f
 		FullMethod: "/productsService.ProductsService/Create",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(ProductsServiceServer).Create(ctx, req.(*UpdateReq))
+		return srv.(ProductsServiceServer).Create(ctx, req.(*CreateReq))
 	}
 	return interceptor(ctx, in, info, handler)
 }

@@ -15,6 +15,7 @@ import (
 	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
 	"github.com/opentracing/opentracing-go"
 	"github.com/pkg/errors"
+	"go.mongodb.org/mongo-driver/mongo"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
 	"google.golang.org/grpc/reflection"
@@ -29,13 +30,14 @@ import (
 
 // server
 type server struct {
-	log    logger.Logger
-	cfg    *config.Config
-	tracer opentracing.Tracer
+	log     logger.Logger
+	cfg     *config.Config
+	tracer  opentracing.Tracer
+	mongoDB *mongo.Client
 }
 
-func NewServer(log logger.Logger, cfg *config.Config, tracer opentracing.Tracer) *server {
-	return &server{log: log, cfg: cfg, tracer: tracer}
+func NewServer(log logger.Logger, cfg *config.Config, tracer opentracing.Tracer, mongoDB *mongo.Client) *server {
+	return &server{log: log, cfg: cfg, tracer: tracer, mongoDB: mongoDB}
 }
 
 func (s *server) Run() error {
@@ -44,7 +46,7 @@ func (s *server) Run() error {
 
 	validate := validator.New()
 
-	productMongoRepo := repository.NewProductMongoRepo()
+	productMongoRepo := repository.NewProductMongoRepo(s.mongoDB)
 	productUC := usecase.NewProductUC(productMongoRepo, s.log)
 
 	port := os.Getenv("PORT")

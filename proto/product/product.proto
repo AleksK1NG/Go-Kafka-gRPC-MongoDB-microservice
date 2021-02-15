@@ -78,7 +78,7 @@ message SearchRes {
 }
 
 service ProductsService {
-  rpc Create(UpdateReq) returns (UpdateRes) {}
+  rpc Create(CreateReq) returns (CreateRes) {}
   rpc Update(UpdateReq) returns (UpdateRes) {}
   rpc GetByID(GetByIDReq) returns (GetByIDRes) {}
   rpc Search(SearchReq) returns (SearchRes) {}

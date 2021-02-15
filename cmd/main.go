@@ -54,6 +54,6 @@ func main() {
 	}()
 	appLogger.Infof("MongoDB connected: %v", mongoDBConn.NumberSessionsInProgress())
 
-	s := server.NewServer(appLogger, cfg, tracer)
+	s := server.NewServer(appLogger, cfg, tracer, mongoDBConn)
 	appLogger.Fatal(s.Run())
 }
