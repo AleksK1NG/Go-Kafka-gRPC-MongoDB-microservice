@@ -105,17 +105,16 @@ func (p *productMongoRepo) Search(ctx context.Context, search string, pagination
 	collection := p.mongoDB.Database(productsDB).Collection(productsCollection)
 
 	f := bson.D{
-		{"$or",
-			bson.A{
-				bson.D{{"name", primitive.Regex{
-					Pattern: search,
-					Options: "gi",
-				}}},
-				bson.D{{"description", primitive.Regex{
-					Pattern: search,
-					Options: "gi",
-				}}},
-			}},
+		{Key: "$or", Value: bson.A{
+			bson.D{{Key: "name", Value: primitive.Regex{
+				Pattern: search,
+				Options: "gi",
+			}}},
+			bson.D{{Key: "description", Value: primitive.Regex{
+				Pattern: search,
+				Options: "gi",
+			}}},
+		}},
 	}
 
 	count, err := collection.CountDocuments(ctx, f)
