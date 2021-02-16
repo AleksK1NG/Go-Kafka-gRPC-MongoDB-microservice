@@ -54,8 +54,6 @@ func (p *productMongoRepo) Create(ctx context.Context, product *models.Product) 
 
 	product.ProductID = objectID
 
-	log.Printf("CREATED PRODUCT: %-v", product)
-
 	return product, nil
 }
 
@@ -146,7 +144,7 @@ func (p *productMongoRepo) Search(ctx context.Context, search string, pagination
 	}
 	defer cursor.Close(ctx)
 
-	var products []*models.Product
+	products := make([]*models.Product, 0, pagination.GetSize())
 	for cursor.Next(ctx) {
 		var prod models.Product
 		if err := cursor.Decode(&prod); err != nil {
@@ -158,8 +156,6 @@ func (p *productMongoRepo) Search(ctx context.Context, search string, pagination
 	if err := cursor.Err(); err != nil {
 		return nil, errors.Wrap(err, "cursor.Err")
 	}
-
-	log.Printf("PRODUCTS: %-v", products)
 
 	return &models.ProductsList{
 		TotalCount: count,

@@ -28,6 +28,10 @@ import (
 	productsService "github.com/AleksK1NG/products-microservice/proto/product"
 )
 
+const (
+	PORT = "PORT"
+)
+
 // server
 type server struct {
 	log     logger.Logger
@@ -49,7 +53,7 @@ func (s *server) Run() error {
 	productMongoRepo := repository.NewProductMongoRepo(s.mongoDB)
 	productUC := usecase.NewProductUC(productMongoRepo, s.log)
 
-	port := os.Getenv("PORT")
+	port := os.Getenv(PORT)
 	if port == "" {
 		port = s.cfg.Server.Port
 	}
