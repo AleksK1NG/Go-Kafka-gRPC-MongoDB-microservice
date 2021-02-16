@@ -21,6 +21,7 @@ import (
 	"google.golang.org/grpc/reflection"
 
 	"github.com/AleksK1NG/products-microservice/config"
+	"github.com/AleksK1NG/products-microservice/internal/interceptors"
 	product "github.com/AleksK1NG/products-microservice/internal/product/delivery/grpc"
 	"github.com/AleksK1NG/products-microservice/internal/product/repository"
 	"github.com/AleksK1NG/products-microservice/internal/product/usecase"
@@ -53,6 +54,8 @@ func (s *server) Run() error {
 	productMongoRepo := repository.NewProductMongoRepo(s.mongoDB)
 	productUC := usecase.NewProductUC(productMongoRepo, s.log)
 
+	im := interceptors.NewInterceptorManager(s.log, s.cfg)
+
 	port := os.Getenv(PORT)
 	if port == "" {
 		port = s.cfg.Server.Port
@@ -75,6 +78,7 @@ func (s *server) Run() error {
 			grpc_opentracing.UnaryServerInterceptor(),
 			grpc_prometheus.UnaryServerInterceptor,
 			grpcrecovery.UnaryServerInterceptor(),
+			im.Logger,
 		),
 	)
 
