@@ -18,6 +18,8 @@ services:
       - grafana
       - jaeger
       - node_exporter
+    networks:
+      - products_network
 
   redis:
     image: redis:6-alpine

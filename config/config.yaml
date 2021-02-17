@@ -15,6 +15,7 @@ Logger:
   Level: info
 
 Metrics:
+  Port: ":7070"
   Url: 0.0.0.0:7071
   ServiceName: user_microservice
 

@@ -9,12 +9,13 @@ require (
 	github.com/grpc-ecosystem/go-grpc-middleware v1.2.2
 	github.com/grpc-ecosystem/go-grpc-prometheus v1.2.0
 	github.com/jaegertracing/jaeger-client-go v2.25.0+incompatible // indirect
+	github.com/labstack/echo/v4 v4.2.0
 	github.com/magiconair/properties v1.8.4 // indirect
 	github.com/mitchellh/mapstructure v1.4.1 // indirect
 	github.com/opentracing/opentracing-go v1.2.0
 	github.com/pelletier/go-toml v1.8.1 // indirect
 	github.com/pkg/errors v0.9.1
-	github.com/prometheus/client_golang v1.9.0 // indirect
+	github.com/prometheus/client_golang v1.9.0
 	github.com/prometheus/procfs v0.6.0 // indirect
 	github.com/spf13/afero v1.5.1 // indirect
 	github.com/spf13/cast v1.3.1 // indirect

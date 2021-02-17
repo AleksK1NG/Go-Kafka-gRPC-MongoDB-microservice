@@ -13,8 +13,10 @@ import (
 	grpc_ctxtags "github.com/grpc-ecosystem/go-grpc-middleware/tags"
 	grpc_opentracing "github.com/grpc-ecosystem/go-grpc-middleware/tracing/opentracing"
 	grpc_prometheus "github.com/grpc-ecosystem/go-grpc-prometheus"
+	"github.com/labstack/echo/v4"
 	"github.com/opentracing/opentracing-go"
 	"github.com/pkg/errors"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"go.mongodb.org/mongo-driver/mongo"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/keepalive"
@@ -41,10 +43,12 @@ type server struct {
 	mongoDB *mongo.Client
 }
 
+// NewServer constructor
 func NewServer(log logger.Logger, cfg *config.Config, tracer opentracing.Tracer, mongoDB *mongo.Client) *server {
 	return &server{log: log, cfg: cfg, tracer: tracer, mongoDB: mongoDB}
 }
 
+// Run Start server
 func (s *server) Run() error {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -95,6 +99,16 @@ func (s *server) Run() error {
 		reflection.Register(grpcServer)
 	}
 
+	metricsServer := echo.New()
+	go func() {
+		metricsServer.GET("/metrics", echo.WrapHandler(promhttp.Handler()))
+		s.log.Infof("Metrics server is running on port: %s", s.cfg.Metrics.Port)
+		if err := metricsServer.Start(s.cfg.Metrics.Port); err != nil {
+			s.log.Error(err)
+			cancel()
+		}
+	}()
+
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, os.Interrupt, syscall.SIGTERM)
 
@@ -109,6 +123,9 @@ func (s *server) Run() error {
 	// 	return errors.Wrap(err, "echo.Server.Shutdown")
 	// }
 
+	if err := metricsServer.Shutdown(ctx); err != nil {
+		s.log.Errorf("metricsServer.Shutdown: %v", err)
+	}
 	grpcServer.GracefulStop()
 	s.log.Info("Server Exited Properly")
 
