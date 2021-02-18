@@ -21,6 +21,97 @@ services:
     networks:
       - products_network
 
+  zookeeper:
+    container_name: zookeeper
+    image: zookeeper:3.4.9
+    hostname: zookeeper
+    ports:
+      - "2181:2181"
+    environment:
+      ZOO_MY_ID: 1
+      ZOO_PORT: 2181
+      ZOO_SERVERS: server.1=zookeeper:2888:3888
+    volumes:
+      - ./data/zookeeper/data:/data
+      - ./data/zookeeper/datalog:/datalog
+    networks:
+      - products_network
+
+
+  kafka1:
+    container_name: kafka1
+    image: confluentinc/cp-kafka:5.3.0
+    hostname: kafka1
+    ports:
+      - "9091:9091"
+    environment:
+      KAFKA_ADVERTISED_LISTENERS: LISTENER_DOCKER_INTERNAL://kafka1:19091,LISTENER_DOCKER_EXTERNAL://${DOCKER_HOST_IP:-127.0.0.1}:9091
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: LISTENER_DOCKER_INTERNAL:PLAINTEXT,LISTENER_DOCKER_EXTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: LISTENER_DOCKER_INTERNAL
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
+      KAFKA_BROKER_ID: 1
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    volumes:
+      - ./data/kafka1/data:/var/lib/kafka/data
+    depends_on:
+      - zookeeper
+    networks:
+      - products_network
+
+  kafka2:
+    container_name: kafka2
+    image: confluentinc/cp-kafka:5.3.0
+    hostname: kafka2
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_ADVERTISED_LISTENERS: LISTENER_DOCKER_INTERNAL://kafka2:19092,LISTENER_DOCKER_EXTERNAL://${DOCKER_HOST_IP:-127.0.0.1}:9092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: LISTENER_DOCKER_INTERNAL:PLAINTEXT,LISTENER_DOCKER_EXTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: LISTENER_DOCKER_INTERNAL
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_BROKER_ID: 2
+    volumes:
+      - ./data/kafka2/data:/var/lib/kafka/data
+    depends_on:
+      - zookeeper
+    networks:
+      - products_network
+
+  kafka3:
+    container_name: kafka3
+    image: confluentinc/cp-kafka:5.3.0
+    hostname: kafka3
+    ports:
+      - "9093:9093"
+    environment:
+      KAFKA_ADVERTISED_LISTENERS: LISTENER_DOCKER_INTERNAL://kafka3:19093,LISTENER_DOCKER_EXTERNAL://${DOCKER_HOST_IP:-127.0.0.1}:9093
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: LISTENER_DOCKER_INTERNAL:PLAINTEXT,LISTENER_DOCKER_EXTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: LISTENER_DOCKER_INTERNAL
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
+      KAFKA_BROKER_ID: 3
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    volumes:
+      - ./data/kafka3/data:/var/lib/kafka/data
+    depends_on:
+      - zookeeper
+    networks:
+      - products_network
+
+  kafdrop:
+    container_name: kafdrop
+    image: obsidiandynamics/kafdrop
+    restart: "no"
+    ports:
+      - "9000:9000"
+    environment:
+      KAFKA_BROKERCONNECT: "kafka1:19091"
+    depends_on:
+      - kafka1
+      - kafka2
+      - kafka3
+    networks:
+      - products_network
+
   redis:
     image: redis:6-alpine
     container_name: user_redis

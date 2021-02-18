@@ -1,5 +1,9 @@
 .PHONY:
 
+# ==============================================================================
+# Docker support
+
+
 local:
 	echo "Starting local docker compose"
 	docker-compose -f docker-compose.local.yml up --build
@@ -14,6 +18,10 @@ upload:
 
 pull:
 	sudo docker pull alexanderbryksin/products_microservice:latest
+
+
+crate_topic:
+	docker exec -it kafka1 kafka-topics --zookeeper zookeeper:2181 --create --topic products --partitions 3 --replication-factor 2
 
 
 # ==============================================================================
