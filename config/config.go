@@ -26,6 +26,7 @@ type Server struct {
 	WriteTimeout      time.Duration
 	MaxConnectionIdle time.Duration
 	MaxConnectionAge  time.Duration
+	Kafka             Kafka
 }
 
 // Logger config
@@ -55,6 +56,12 @@ type MongoDB struct {
 	User     string
 	Password string
 	DB       string
+}
+
+type Kafka struct {
+	Broker1 string
+	Broker2 string
+	Broker3 string
 }
 
 func exportConfig() error {
