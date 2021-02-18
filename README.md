@@ -9,3 +9,7 @@ http://localhost:9090
 ### Grafana UI:
 
 http://localhost:3000
+
+### Kafka UI:
+
+http://localhost:9000/
