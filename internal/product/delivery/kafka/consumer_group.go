@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"sync"
-	"time"
 
 	"github.com/segmentio/kafka-go"
 	"github.com/segmentio/kafka-go/compress"
@@ -13,29 +12,6 @@ import (
 	"github.com/AleksK1NG/products-microservice/internal/models"
 	"github.com/AleksK1NG/products-microservice/internal/product"
 	"github.com/AleksK1NG/products-microservice/pkg/logger"
-)
-
-const (
-	minBytes               = 10e3 // 10KB
-	maxBytes               = 10e6 // 10MB
-	queueCapacity          = 100
-	heartbeatInterval      = 3 * time.Second
-	commitInterval         = 0
-	partitionWatchInterval = 5 * time.Second
-	maxAttempts            = 3
-	dialTimeout            = 3 * time.Minute
-
-	writerReadTimeout  = 10 * time.Second
-	writerWriteTimeout = 10 * time.Second
-
-	createProductTopic   = "create-product"
-	createProductWorkers = 16
-	updateProductTopic   = "update-product"
-	updateProductWorkers = 16
-
-	deadLetterQueueTopic = "dead-letter-queue"
-
-	productsGroupID = "products_group"
 )
 
 // ProductsConsumerGroup struct
