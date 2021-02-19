@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/segmentio/kafka-go"
+	"github.com/segmentio/kafka-go/compress"
 
 	"github.com/AleksK1NG/products-microservice/config"
 	"github.com/AleksK1NG/products-microservice/internal/product"
@@ -22,10 +23,15 @@ const (
 	maxAttempts            = 3
 	dialTimeout            = 3 * time.Minute
 
+	writerReadTimeout  = 10 * time.Second
+	writerWriteTimeout = 10 * time.Second
+
 	createProductTopic   = "create-product"
 	createProductWorkers = 16
 	updateProductTopic   = "update-product"
 	updateProductWorkers = 16
+
+	deadLetterQueueTopic = "dead-letter-queue"
 
 	productsGroupID = "products_group"
 )
@@ -70,6 +76,22 @@ func (pcg *ProductsConsumerGroup) getNewKafkaReader(kafkaURL []string, topic, gr
 	})
 }
 
+func (pcg *ProductsConsumerGroup) getNewKafkaWriter(topic string) *kafka.Writer {
+	w := &kafka.Writer{
+		Addr:         kafka.TCP(pcg.Brokers...),
+		Topic:        topic,
+		Balancer:     &kafka.LeastBytes{},
+		RequiredAcks: -1,
+		MaxAttempts:  3,
+		Logger:       kafka.LoggerFunc(pcg.log.Infof),
+		ErrorLogger:  kafka.LoggerFunc(pcg.log.Errorf),
+		Compression:  compress.Snappy,
+		ReadTimeout:  writerReadTimeout,
+		WriteTimeout: writerWriteTimeout,
+	}
+	return w
+}
+
 func (pcg *ProductsConsumerGroup) consumeCreateProduct(
 	ctx context.Context,
 	cancel context.CancelFunc,
@@ -86,12 +108,20 @@ func (pcg *ProductsConsumerGroup) consumeCreateProduct(
 		}
 	}()
 
+	w := pcg.getNewKafkaWriter(deadLetterQueueTopic)
+	defer func() {
+		if err := w.Close(); err != nil {
+			pcg.log.Errorf("w.Close", err)
+			cancel()
+		}
+	}()
+
 	pcg.log.Infof("Starting consumer group: %v", r.Config().GroupID)
 
 	wg := &sync.WaitGroup{}
 	for i := 0; i <= workersNum; i++ {
 		wg.Add(1)
-		go pcg.createProductWorker(ctx, cancel, r, wg, i)
+		go pcg.createProductWorker(ctx, cancel, r, w, wg, i)
 	}
 	wg.Wait()
 }
@@ -112,12 +142,20 @@ func (pcg *ProductsConsumerGroup) consumeUpdateProduct(
 		}
 	}()
 
+	w := pcg.getNewKafkaWriter(deadLetterQueueTopic)
+	defer func() {
+		if err := w.Close(); err != nil {
+			pcg.log.Errorf("w.Close", err)
+			cancel()
+		}
+	}()
+
 	pcg.log.Infof("Starting consumer group: %v", r.Config().GroupID)
 
 	wg := &sync.WaitGroup{}
 	for i := 0; i <= workersNum; i++ {
 		wg.Add(1)
-		go pcg.updateProductWorker(ctx, cancel, r, wg, i)
+		go pcg.updateProductWorker(ctx, cancel, r, w, wg, i)
 	}
 	wg.Wait()
 }

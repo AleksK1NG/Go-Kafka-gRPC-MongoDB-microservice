@@ -3,7 +3,9 @@ package usecase
 import (
 	"context"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/opentracing/opentracing-go"
+	"github.com/pkg/errors"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 
 	"github.com/AleksK1NG/products-microservice/internal/models"
@@ -16,17 +18,24 @@ import (
 type productUC struct {
 	productRepo product.MongoRepository
 	log         logger.Logger
+	validate    *validator.Validate
 }
 
 // NewProductUC productUC constructor
-func NewProductUC(productRepo product.MongoRepository, log logger.Logger) *productUC {
-	return &productUC{productRepo: productRepo, log: log}
+func NewProductUC(productRepo product.MongoRepository, log logger.Logger, validate *validator.Validate) *productUC {
+	return &productUC{productRepo: productRepo, log: log, validate: validate}
 }
 
 // Create Create new product
 func (p *productUC) Create(ctx context.Context, product *models.Product) (*models.Product, error) {
 	span, ctx := opentracing.StartSpanFromContext(ctx, "productUC.Create")
 	defer span.Finish()
+
+	if err := p.validate.StructCtx(ctx, product); err != nil {
+		p.log.Errorf("validate.StructCtx: %v", err)
+		return nil, errors.Wrap(err, "validate")
+	}
+
 	return p.productRepo.Create(ctx, product)
 }
 
@@ -34,6 +43,12 @@ func (p *productUC) Create(ctx context.Context, product *models.Product) (*model
 func (p *productUC) Update(ctx context.Context, product *models.Product) (*models.Product, error) {
 	span, ctx := opentracing.StartSpanFromContext(ctx, "productUC.Update")
 	defer span.Finish()
+
+	if err := p.validate.StructCtx(ctx, product); err != nil {
+		p.log.Errorf("validate.StructCtx: %v", err)
+		return nil, errors.Wrap(err, "validate")
+	}
+
 	return p.productRepo.Update(ctx, product)
 }
 
