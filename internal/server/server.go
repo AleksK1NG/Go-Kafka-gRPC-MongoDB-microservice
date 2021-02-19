@@ -25,6 +25,7 @@ import (
 	"github.com/AleksK1NG/products-microservice/config"
 	"github.com/AleksK1NG/products-microservice/internal/interceptors"
 	product "github.com/AleksK1NG/products-microservice/internal/product/delivery/grpc"
+	"github.com/AleksK1NG/products-microservice/internal/product/delivery/kafka"
 	"github.com/AleksK1NG/products-microservice/internal/product/repository"
 	"github.com/AleksK1NG/products-microservice/internal/product/usecase"
 	"github.com/AleksK1NG/products-microservice/pkg/logger"
@@ -89,6 +90,9 @@ func (s *server) Run() error {
 	productService := product.NewProductService(s.log, productUC, validate)
 	productsService.RegisterProductsServiceServer(grpcServer, productService)
 	grpc_prometheus.Register(grpcServer)
+
+	productsCG := kafka.NewProductsConsumerGroup(s.cfg.Kafka.Brokers, "products_group", s.log, s.cfg, productUC)
+	productsCG.RunConsumers(ctx, cancel)
 
 	go func() {
 		s.log.Infof("GRPC Server is listening on port: %s", port)

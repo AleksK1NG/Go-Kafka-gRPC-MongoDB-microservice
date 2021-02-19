@@ -9,6 +9,7 @@ import (
 	"github.com/AleksK1NG/products-microservice/config"
 	"github.com/AleksK1NG/products-microservice/internal/server"
 	"github.com/AleksK1NG/products-microservice/pkg/jaeger"
+	"github.com/AleksK1NG/products-microservice/pkg/kafka"
 	"github.com/AleksK1NG/products-microservice/pkg/logger"
 	"github.com/AleksK1NG/products-microservice/pkg/mongodb"
 )
@@ -53,6 +54,17 @@ func main() {
 		}
 	}()
 	appLogger.Infof("MongoDB connected: %v", mongoDBConn.NumberSessionsInProgress())
+
+	conn, err := kafka.NewKafkaConn(cfg)
+	if err != nil {
+		appLogger.Fatal("NewKafkaConn", err)
+	}
+	defer conn.Close()
+	brokers, err := conn.Brokers()
+	if err != nil {
+		appLogger.Fatal("conn.Brokers", err)
+	}
+	appLogger.Infof("Kafka connected: %v", brokers)
 
 	s := server.NewServer(appLogger, cfg, tracer, mongoDBConn)
 	appLogger.Fatal(s.Run())

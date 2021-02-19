@@ -12,13 +12,20 @@ import (
 	"github.com/AleksK1NG/products-microservice/internal/models"
 )
 
-func (pcg *ProductsConsumerGroup) createProductWorker(ctx context.Context, r *kafka.Reader, wg *sync.WaitGroup, workerID int) {
-	span, ctx := opentracing.StartSpanFromContext(ctx, "ProductsConsumerGroup.createProductWorker")
+func (pcg *ProductsConsumerGroup) createProductWorker(
+	ctx context.Context,
+	cancel context.CancelFunc,
+	r *kafka.Reader,
+	wg *sync.WaitGroup,
+	workerID int,
+) {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "createProductWorker")
 	defer span.Finish()
 
 	span.LogFields(log.String("ConsumerGroup", r.Config().GroupID))
 
 	defer wg.Done()
+	defer cancel()
 
 	for {
 		m, err := r.FetchMessage(ctx)
@@ -58,13 +65,20 @@ func (pcg *ProductsConsumerGroup) createProductWorker(ctx context.Context, r *ka
 	}
 }
 
-func (pcg *ProductsConsumerGroup) updateProductWorker(ctx context.Context, r *kafka.Reader, wg *sync.WaitGroup, workerID int) {
-	span, ctx := opentracing.StartSpanFromContext(ctx, "ProductsConsumerGroup.updateProductWorker")
+func (pcg *ProductsConsumerGroup) updateProductWorker(
+	ctx context.Context,
+	cancel context.CancelFunc,
+	r *kafka.Reader,
+	wg *sync.WaitGroup,
+	workerID int,
+) {
+	span, ctx := opentracing.StartSpanFromContext(ctx, "updateProductWorker")
 	defer span.Finish()
 
 	span.LogFields(log.String("ConsumerGroup", r.Config().GroupID))
 
 	defer wg.Done()
+	defer cancel()
 
 	for {
 		m, err := r.FetchMessage(ctx)

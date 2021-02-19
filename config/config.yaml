@@ -9,9 +9,7 @@ Server:
   MaxConnectionAge: 5
 
 Kafka:
-  Broker1: "localhost:9091"
-  Broker2: "localhost:9092"
-  Broker3: "localhost:9093"
+  Brokers: ["localhost:9091",  "localhost:9092",  "localhost:9093"]
 
 Logger:
   DisableCaller: false
