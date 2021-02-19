@@ -70,3 +70,11 @@ clean:
 
 logs-local:
 	docker logs -f $(FILES)
+
+
+# ==============================================================================
+# Make local SSL Certificate
+
+make_cert:
+	echo "Generating SSL certificates"
+	cd ./ssl && sh instructions.sh
