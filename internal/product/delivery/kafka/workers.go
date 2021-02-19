@@ -16,10 +16,11 @@ func (pcg *ProductsConsumerGroup) createProductWorker(
 	ctx context.Context,
 	cancel context.CancelFunc,
 	r *kafka.Reader,
+	w *kafka.Writer,
 	wg *sync.WaitGroup,
 	workerID int,
 ) {
-	span, ctx := opentracing.StartSpanFromContext(ctx, "createProductWorker")
+	span, ctx := opentracing.StartSpanFromContext(ctx, "ProductsConsumerGroup.createProductWorker")
 	defer span.Finish()
 
 	span.LogFields(log.String("ConsumerGroup", r.Config().GroupID))
@@ -52,8 +53,25 @@ func (pcg *ProductsConsumerGroup) createProductWorker(
 
 		created, err := pcg.productsUC.Create(ctx, &prod)
 		if err != nil {
-			pcg.log.Errorf("productsUC.Create", err)
-			continue
+			errMsg := &models.ErrorMessage{
+				Offset:    m.Offset,
+				Error:     err.Error(),
+				Time:      m.Time.UTC(),
+				Partition: m.Partition,
+				Topic:     m.Topic,
+			}
+
+			errMsgBytes, err := json.Marshal(errMsg)
+			if err != nil {
+				pcg.log.Errorf("productsUC.Create.json.Marsha", err)
+				continue
+			}
+			if err := w.WriteMessages(ctx, kafka.Message{
+				Value: errMsgBytes,
+			}); err != nil {
+				pcg.log.Errorf("productsUC.Create.WriteMessages", err)
+				continue
+			}
 		}
 
 		if err := r.CommitMessages(ctx, m); err != nil {
@@ -69,10 +87,11 @@ func (pcg *ProductsConsumerGroup) updateProductWorker(
 	ctx context.Context,
 	cancel context.CancelFunc,
 	r *kafka.Reader,
+	w *kafka.Writer,
 	wg *sync.WaitGroup,
 	workerID int,
 ) {
-	span, ctx := opentracing.StartSpanFromContext(ctx, "updateProductWorker")
+	span, ctx := opentracing.StartSpanFromContext(ctx, "ProductsConsumerGroup.updateProductWorker")
 	defer span.Finish()
 
 	span.LogFields(log.String("ConsumerGroup", r.Config().GroupID))
@@ -105,8 +124,27 @@ func (pcg *ProductsConsumerGroup) updateProductWorker(
 
 		updated, err := pcg.productsUC.Update(ctx, &prod)
 		if err != nil {
-			pcg.log.Errorf("productsUC.Update", err)
-			continue
+			errMsg := &models.ErrorMessage{
+				Offset:    m.Offset,
+				Error:     err.Error(),
+				Time:      m.Time.UTC(),
+				Partition: m.Partition,
+				Topic:     m.Topic,
+			}
+
+			errMsgBytes, err := json.Marshal(errMsg)
+			if err != nil {
+				pcg.log.Errorf("productsUC.Update.json.Marsha", err)
+				continue
+			}
+			if err := w.WriteMessages(ctx, kafka.Message{
+				Topic: deadLetterQueueTopic,
+				Value: errMsgBytes,
+				Time:  m.Time.UTC(),
+			}); err != nil {
+				pcg.log.Errorf("productsUC.Update.WriteMessages", err)
+				continue
+			}
 		}
 
 		if err := r.CommitMessages(ctx, m); err != nil {

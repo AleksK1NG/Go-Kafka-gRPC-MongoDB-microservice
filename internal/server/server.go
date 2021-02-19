@@ -57,7 +57,7 @@ func (s *server) Run() error {
 	validate := validator.New()
 
 	productMongoRepo := repository.NewProductMongoRepo(s.mongoDB)
-	productUC := usecase.NewProductUC(productMongoRepo, s.log)
+	productUC := usecase.NewProductUC(productMongoRepo, s.log, validate)
 
 	im := interceptors.NewInterceptorManager(s.log, s.cfg)
 
