@@ -15,6 +15,7 @@ type Config struct {
 	Jaeger     Jaeger
 	Metrics    Metrics
 	MongoDB    MongoDB
+	Kafka      Kafka
 }
 
 // Server config
@@ -59,9 +60,7 @@ type MongoDB struct {
 }
 
 type Kafka struct {
-	Broker1 string
-	Broker2 string
-	Broker3 string
+	Brokers []string
 }
 
 func exportConfig() error {

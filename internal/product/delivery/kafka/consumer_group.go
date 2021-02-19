@@ -21,15 +21,21 @@ const (
 	partitionWatchInterval = 5 * time.Second
 	maxAttempts            = 3
 	dialTimeout            = 3 * time.Minute
+
+	createProductTopic   = "create-product"
+	createProductWorkers = 16
+	updateProductTopic   = "update-product"
+	updateProductWorkers = 16
+
+	productsGroupID = "products_group"
 )
 
-// ProductsConsumerGroup
+// ProductsConsumerGroup struct
 type ProductsConsumerGroup struct {
 	Brokers    []string
 	GroupID    string
-	Topic      string
 	log        logger.Logger
-	cfg        config.Config
+	cfg        *config.Config
 	productsUC product.UseCase
 }
 
@@ -37,12 +43,11 @@ type ProductsConsumerGroup struct {
 func NewProductsConsumerGroup(
 	brokers []string,
 	groupID string,
-	topic string,
 	log logger.Logger,
-	cfg config.Config,
+	cfg *config.Config,
 	productsUC product.UseCase,
 ) *ProductsConsumerGroup {
-	return &ProductsConsumerGroup{Brokers: brokers, GroupID: groupID, Topic: topic, log: log, cfg: cfg, productsUC: productsUC}
+	return &ProductsConsumerGroup{Brokers: brokers, GroupID: groupID, log: log, cfg: cfg, productsUC: productsUC}
 }
 
 func (pcg *ProductsConsumerGroup) getNewKafkaReader(kafkaURL []string, topic, groupID string) *kafka.Reader {
@@ -60,21 +65,19 @@ func (pcg *ProductsConsumerGroup) getNewKafkaReader(kafkaURL []string, topic, gr
 		ErrorLogger:            kafka.LoggerFunc(pcg.log.Errorf),
 		MaxAttempts:            maxAttempts,
 		Dialer: &kafka.Dialer{
-			Timeout:         dialTimeout,
-			LocalAddr:       nil,
-			DualStack:       false,
-			FallbackDelay:   0,
-			KeepAlive:       0,
-			Resolver:        nil,
-			TLS:             nil,
-			SASLMechanism:   nil,
-			TransactionalID: "",
+			Timeout: dialTimeout,
 		},
 	})
 }
 
-func (pcg *ProductsConsumerGroup) consumeCreateProduct(ctx context.Context, cancel context.CancelFunc, topic string, workersNum int) {
-	r := pcg.getNewKafkaReader(pcg.Brokers, topic, pcg.GroupID)
+func (pcg *ProductsConsumerGroup) consumeCreateProduct(
+	ctx context.Context,
+	cancel context.CancelFunc,
+	groupID string,
+	topic string,
+	workersNum int,
+) {
+	r := pcg.getNewKafkaReader(pcg.Brokers, topic, groupID)
 	defer cancel()
 	defer func() {
 		if err := r.Close(); err != nil {
@@ -88,13 +91,19 @@ func (pcg *ProductsConsumerGroup) consumeCreateProduct(ctx context.Context, canc
 	wg := &sync.WaitGroup{}
 	for i := 0; i <= workersNum; i++ {
 		wg.Add(1)
-		go pcg.createProductWorker(ctx, r, wg, i)
+		go pcg.createProductWorker(ctx, cancel, r, wg, i)
 	}
 	wg.Wait()
 }
 
-func (pcg *ProductsConsumerGroup) consumeUpdateProduct(ctx context.Context, cancel context.CancelFunc, topic string, workersNum int) {
-	r := pcg.getNewKafkaReader(pcg.Brokers, topic, pcg.GroupID)
+func (pcg *ProductsConsumerGroup) consumeUpdateProduct(
+	ctx context.Context,
+	cancel context.CancelFunc,
+	groupID string,
+	topic string,
+	workersNum int,
+) {
+	r := pcg.getNewKafkaReader(pcg.Brokers, topic, groupID)
 	defer cancel()
 	defer func() {
 		if err := r.Close(); err != nil {
@@ -108,12 +117,13 @@ func (pcg *ProductsConsumerGroup) consumeUpdateProduct(ctx context.Context, canc
 	wg := &sync.WaitGroup{}
 	for i := 0; i <= workersNum; i++ {
 		wg.Add(1)
-		go pcg.updateProductWorker(ctx, r, wg, i)
+		go pcg.updateProductWorker(ctx, cancel, r, wg, i)
 	}
 	wg.Wait()
 }
 
+// RunConsumers run kafka consumers
 func (pcg *ProductsConsumerGroup) RunConsumers(ctx context.Context, cancel context.CancelFunc) {
-	go pcg.consumeCreateProduct(ctx, cancel, "create_product", 16)
-	go pcg.consumeUpdateProduct(ctx, cancel, "update_product", 16)
+	go pcg.consumeCreateProduct(ctx, cancel, productsGroupID, createProductTopic, createProductWorkers)
+	go pcg.consumeUpdateProduct(ctx, cancel, productsGroupID, updateProductTopic, updateProductWorkers)
 }
