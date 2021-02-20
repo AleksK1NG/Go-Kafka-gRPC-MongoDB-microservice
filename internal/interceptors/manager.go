@@ -4,11 +4,20 @@ import (
 	"context"
 	"time"
 
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/metadata"
 
 	"github.com/AleksK1NG/products-microservice/config"
 	"github.com/AleksK1NG/products-microservice/pkg/logger"
+)
+
+var (
+	totalRequests = promauto.NewCounter(prometheus.CounterOpts{
+		Name: "products_service_requests_total",
+		Help: "The total number of incoming gRPC messages",
+	})
 )
 
 // InterceptorManager
@@ -29,6 +38,7 @@ func (im *InterceptorManager) Logger(
 	info *grpc.UnaryServerInfo,
 	handler grpc.UnaryHandler,
 ) (resp interface{}, err error) {
+	totalRequests.Inc()
 	start := time.Now()
 	md, _ := metadata.FromIncomingContext(ctx)
 	reply, err := handler(ctx, req)
