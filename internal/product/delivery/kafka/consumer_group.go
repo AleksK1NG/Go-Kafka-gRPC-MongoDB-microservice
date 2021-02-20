@@ -45,7 +45,7 @@ func (pcg *ProductsConsumerGroup) getNewKafkaReader(kafkaURL []string, topic, gr
 		HeartbeatInterval:      heartbeatInterval,
 		CommitInterval:         commitInterval,
 		PartitionWatchInterval: partitionWatchInterval,
-		Logger:                 kafka.LoggerFunc(pcg.log.Infof),
+		Logger:                 kafka.LoggerFunc(pcg.log.Debugf),
 		ErrorLogger:            kafka.LoggerFunc(pcg.log.Errorf),
 		MaxAttempts:            maxAttempts,
 		Dialer: &kafka.Dialer{
@@ -61,7 +61,7 @@ func (pcg *ProductsConsumerGroup) getNewKafkaWriter(topic string) *kafka.Writer 
 		Balancer:     &kafka.LeastBytes{},
 		RequiredAcks: -1,
 		MaxAttempts:  3,
-		Logger:       kafka.LoggerFunc(pcg.log.Infof),
+		Logger:       kafka.LoggerFunc(pcg.log.Debugf),
 		ErrorLogger:  kafka.LoggerFunc(pcg.log.Errorf),
 		Compression:  compress.Snappy,
 		ReadTimeout:  writerReadTimeout,
