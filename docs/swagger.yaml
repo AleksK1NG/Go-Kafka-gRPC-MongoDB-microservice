@@ -1,0 +1,139 @@
+definitions:
+  models.Product:
+    properties:
+      CategoryId:
+        type: string
+      createdAt:
+        type: string
+      description:
+        type: string
+      imageUrl:
+        type: string
+      name:
+        type: string
+      photos:
+        items:
+          type: string
+        type: array
+      price:
+        type: number
+      productId:
+        type: string
+      quantity:
+        type: integer
+      rating:
+        type: integer
+      updatedAt:
+        type: string
+    required:
+    - description
+    - name
+    - price
+    - quantity
+    - rating
+    type: object
+  models.ProductsList:
+    properties:
+      hasMore:
+        type: boolean
+      page:
+        type: integer
+      products:
+        items:
+          $ref: '#/definitions/models.Product'
+        type: array
+      size:
+        type: integer
+      totalCount:
+        type: integer
+      totalPages:
+        type: integer
+    type: object
+info:
+  contact: {}
+paths:
+  /products:
+    post:
+      consumes:
+      - application/json
+      description: Create new single product
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/models.Product'
+      summary: Create new product
+      tags:
+      - Products
+  /products/{product_id}:
+    get:
+      consumes:
+      - application/json
+      description: Get single product by id
+      parameters:
+      - description: product id
+        in: path
+        name: product_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Product'
+      summary: Get product by id
+      tags:
+      - Products
+    put:
+      consumes:
+      - application/json
+      description: Update single product by id
+      parameters:
+      - description: product id
+        in: path
+        name: product_id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.Product'
+      summary: Update single product
+      tags:
+      - Products
+  /products/search:
+    get:
+      consumes:
+      - application/json
+      description: Search product by name or description
+      parameters:
+      - description: search text
+        in: query
+        name: search
+        type: string
+      - description: page number
+        in: query
+        name: page
+        type: string
+      - description: number of elements
+        in: query
+        name: size
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.ProductsList'
+      summary: Search product
+      tags:
+      - Products
+swagger: "2.0"

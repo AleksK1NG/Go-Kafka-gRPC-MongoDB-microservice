@@ -71,7 +71,7 @@ func (p *productHandlers) CreateProduct() echo.HandlerFunc {
 // @Description Update single product by id
 // @Accept json
 // @Produce json
-// @Param product_id query string false "product id"
+// @Param product_id path string true "product id"
 // @Success 200 {object} models.Product
 // @Router /products/{product_id} [put]
 func (p *productHandlers) UpdateProduct() echo.HandlerFunc {
@@ -111,7 +111,7 @@ func (p *productHandlers) UpdateProduct() echo.HandlerFunc {
 // @Description Get single product by id
 // @Accept json
 // @Produce json
-// @Param product_id query string false "product id"
+// @Param product_id path string true "product id"
 // @Success 200 {object} models.Product
 // @Router /products/{product_id} [get]
 func (p *productHandlers) GetByIDProduct() echo.HandlerFunc {
@@ -158,21 +158,21 @@ func (p *productHandlers) SearchProduct() echo.HandlerFunc {
 
 		page, err := strconv.Atoi(c.QueryParam("page"))
 		if err != nil {
-			p.log.Error("strconv.Atoi")
+			p.log.Errorf("strconv.Atoi: %v", err)
 			errorRequests.Inc()
-			return httpErrors.ErrorCtxResponse(c, err)
+			return httpErrors.ErrorCtxResponse(c, httpErrors.BadRequest)
 		}
 		size, err := strconv.Atoi(c.QueryParam("size"))
 		if err != nil {
-			p.log.Error("strconv.Atoi")
+			p.log.Errorf("strconv.Atoi: %v", err)
 			errorRequests.Inc()
-			return httpErrors.ErrorCtxResponse(c, err)
+			return httpErrors.ErrorCtxResponse(c, httpErrors.BadRequest)
 		}
 
 		pq := utils.NewPaginationQuery(size, page)
 		result, err := p.productUC.Search(ctx, c.QueryParam("search"), pq)
 		if err != nil {
-			p.log.Error("productUC.Search")
+			p.log.Errorf("productUC.Search: %v", err)
 			errorRequests.Inc()
 			return httpErrors.ErrorCtxResponse(c, err)
 		}
