@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"crypto/tls"
 	"net"
 	"os"
 	"os/signal"
@@ -19,6 +20,7 @@ import (
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"go.mongodb.org/mongo-driver/mongo"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/keepalive"
 	"google.golang.org/grpc/reflection"
 
@@ -83,13 +85,13 @@ func (s *server) Run() error {
 	}
 	defer l.Close()
 
-	// cert, err := tls.LoadX509KeyPair(certFile, keyFile)
-	// if err != nil {
-	// 	s.log.Fatalf("failed to load key pair: %s", err)
-	// }
+	cert, err := tls.LoadX509KeyPair(certFile, keyFile)
+	if err != nil {
+		s.log.Fatalf("failed to load key pair: %s", err)
+	}
 
 	grpcServer := grpc.NewServer(
-		// grpc.Creds(credentials.NewServerTLSFromCert(&cert)),
+		grpc.Creds(credentials.NewServerTLSFromCert(&cert)),
 		grpc.KeepaliveParams(keepalive.ServerParameters{
 			MaxConnectionIdle: s.cfg.Server.MaxConnectionIdle * time.Minute,
 			Timeout:           s.cfg.Server.Timeout * time.Second,

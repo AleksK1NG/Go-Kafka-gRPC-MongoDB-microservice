@@ -3,18 +3,15 @@
 # ==============================================================================
 # Docker support
 
-
 local:
 	echo "Starting local docker compose"
 	docker-compose -f docker-compose.local.yml up --build
 
-gen:
-	GO111MODULE=on  swagger generate spec -o ./api/swagger/swagger.yaml --scan-models
 
 upload:
-	sudo docker build -t alexanderbryksin/products_microservice:latest -f ./Dockerfile .
-	sudo docker push alexanderbryksin/products_microservice:latest
-	#sudo APP_VERSION=latest docker-compose up
+	docker build -t alexanderbryksin/products_microservice:latest -f ./Dockerfile .
+	docker push alexanderbryksin/products_microservice:latest
+	#APP_VERSION=latest docker-compose up
 
 pull:
 	sudo docker pull alexanderbryksin/products_microservice:latest
@@ -81,6 +78,7 @@ make_cert:
 
 # ==============================================================================
 # Swagger
+
 swagger:
 	echo "Starting swagger generating"
 	swag init -g **/**/*.go
