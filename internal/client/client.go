@@ -30,8 +30,8 @@ func main() {
 
 	prod := &models.Product{
 		CategoryID:  primitive.NewObjectID(),
-		Name:        "Book Microservices",
-		Description: "Book Microservices Architecture",
+		Name:        "Book Microservices CQRS",
+		Description: "Book Microservices Architecture Event Sourcing",
 		Price:       10.50,
 		ImageURL:    nil,
 		Photos:      nil,
