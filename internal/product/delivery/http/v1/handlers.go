@@ -9,6 +9,7 @@ import (
 	"github.com/opentracing/opentracing-go"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 
+	"github.com/AleksK1NG/products-microservice/internal/middlewares"
 	"github.com/AleksK1NG/products-microservice/internal/models"
 	"github.com/AleksK1NG/products-microservice/internal/product"
 	httpErrors "github.com/AleksK1NG/products-microservice/pkg/http_errors"
@@ -22,11 +23,18 @@ type productHandlers struct {
 	productUC product.UseCase
 	validate  *validator.Validate
 	group     *echo.Group
+	mw        middlewares.MiddlewareManager
 }
 
 // NewProductHandlers constructor
-func NewProductHandlers(log logger.Logger, productUC product.UseCase, validate *validator.Validate, group *echo.Group) *productHandlers {
-	return &productHandlers{log: log, productUC: productUC, validate: validate, group: group}
+func NewProductHandlers(
+	log logger.Logger,
+	productUC product.UseCase,
+	validate *validator.Validate,
+	group *echo.Group,
+	mw middlewares.MiddlewareManager,
+) *productHandlers {
+	return &productHandlers{log: log, productUC: productUC, validate: validate, group: group, mw: mw}
 }
 
 // CreateProduct Create product
