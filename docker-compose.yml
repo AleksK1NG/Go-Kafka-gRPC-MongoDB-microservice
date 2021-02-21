@@ -2,15 +2,17 @@ version: "3.8"
 
 services:
   app:
-    container_name: service
+    container_name: microservice
     #    image: alexanderbryksin/products_microservice:latest
     build:
       context: .
       dockerfile: Dockerfile
     ports:
       - 5000:5000
+      - 5555:5555
     environment:
       - PORT=:5000
+      - MODE=DOCKER
     restart: always
     depends_on:
       - redis
@@ -18,11 +20,19 @@ services:
       - grafana
       - jaeger
       - node_exporter
-    networks:
-      - products_network
+      - mongodb
+      - kafdrop
+      - kafka1
+      - kafka2
+      - kafka3
+      - zookeeper
+    network_mode: host
+#    networks:
+#      - host
 
   zookeeper:
     container_name: zookeeper
+    restart: always
     image: zookeeper:3.4.9
     hostname: zookeeper
     ports:
@@ -34,12 +44,14 @@ services:
     volumes:
       - ./data/zookeeper/data:/data
       - ./data/zookeeper/datalog:/datalog
-    networks:
-      - products_network
+    network_mode: host
+#    networks:
+#      - host
 
 
   kafka1:
     container_name: kafka1
+    restart: always
     image: confluentinc/cp-kafka:5.3.0
     hostname: kafka1
     ports:
@@ -55,11 +67,13 @@ services:
       - ./data/kafka1/data:/var/lib/kafka/data
     depends_on:
       - zookeeper
-    networks:
-      - products_network
+    network_mode: host
+#    networks:
+#      - host
 
   kafka2:
     container_name: kafka2
+    restart: always
     image: confluentinc/cp-kafka:5.3.0
     hostname: kafka2
     ports:
@@ -74,11 +88,13 @@ services:
       - ./data/kafka2/data:/var/lib/kafka/data
     depends_on:
       - zookeeper
-    networks:
-      - products_network
+    network_mode: host
+#    networks:
+#      - host
 
   kafka3:
     container_name: kafka3
+    restart: always
     image: confluentinc/cp-kafka:5.3.0
     hostname: kafka3
     ports:
@@ -94,13 +110,14 @@ services:
       - ./data/kafka3/data:/var/lib/kafka/data
     depends_on:
       - zookeeper
-    networks:
-      - products_network
+    network_mode: host
+#    networks:
+#      - host
 
   kafdrop:
     container_name: kafdrop
+    restart: always
     image: obsidiandynamics/kafdrop
-    restart: "no"
     ports:
       - "9000:9000"
     environment:
@@ -109,20 +126,23 @@ services:
       - kafka1
       - kafka2
       - kafka3
-    networks:
-      - products_network
+    network_mode: host
+#    networks:
+#      - host
 
   redis:
     image: redis:6-alpine
+    restart: always
     container_name: user_redis
     ports:
       - "6379:6379"
-    restart: always
-    networks:
-      - products_network
+    network_mode: host
+#    networks:
+#      - host
 
   prometheus:
     container_name: prometheus_container
+    restart: always
     image: prom/prometheus
     volumes:
       - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml:Z
@@ -134,28 +154,34 @@ services:
       - '--web.console.templates=/usr/share/prometheus/consoles'
     ports:
       - '9090:9090'
-    networks:
-      - products_network
+    network_mode: host
+#    networks:
+#      - host
 
 
   node_exporter:
     container_name: node_exporter_container
+    restart: always
     image: prom/node-exporter
     ports:
       - '9101:9100'
-    networks:
-      - products_network
+    network_mode: host
+#    networks:
+#      - host
 
   grafana:
     container_name: grafana_container
+    restart: always
     image: grafana/grafana
     ports:
       - '3000:3000'
-    networks:
-      - products_network
+    network_mode: host
+#    networks:
+#      - host
 
   jaeger:
     container_name: jaeger_container
+    restart: always
     image: jaegertracing/all-in-one:1.21
     environment:
       - COLLECTOR_ZIPKIN_HTTP_PORT=9411
@@ -168,10 +194,30 @@ services:
       - 14268:14268
       - 14250:14250
       - 9411:9411
-    networks:
-      - products_network
+#    networks:
+#      - host
+    network_mode: host
 
-networks:
-  products_network:
-    driver: bridge
+  mongodb:
+    image: mongo:latest
+    container_name: mongodb_container
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: admin
+      MONGODB_DATABASE: products
+    ports:
+      - 27017:27017
+    volumes:
+      - mongodb_data_container:/data/db
+#    networks:
+#      - host
+    network_mode: host
+
+volumes:
+  mongodb_data_container:
+
+#networks:
+#  host:
+#    driver: host
 
