@@ -13,4 +13,4 @@ scrape_configs:
 
   - job_name: 'products-microservice'
     static_configs:
-      - targets: [ 'localhost:7070' ]
+      - targets: [ 'host.docker.internal:7070' ]
