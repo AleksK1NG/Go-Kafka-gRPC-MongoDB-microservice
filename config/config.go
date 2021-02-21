@@ -2,6 +2,7 @@ package config
 
 import (
 	"log"
+	"os"
 	"time"
 
 	"github.com/spf13/viper"
@@ -66,7 +67,12 @@ type Kafka struct {
 func exportConfig() error {
 	viper.SetConfigType("yaml")
 	viper.AddConfigPath("./config")
-	viper.SetConfigName("config.yaml")
+	if os.Getenv("MODE") == "DOCKER" {
+		viper.SetConfigName("config-docker.yml")
+	} else {
+		viper.SetConfigName("config.yaml")
+	}
+
 	if err := viper.ReadInConfig(); err != nil {
 		return err
 	}
