@@ -35,6 +35,7 @@ func (s *server) mapRoutes() {
 	docs.SwaggerInfo.Title = "Products microservice"
 	docs.SwaggerInfo.Description = "Products REST API microservice."
 	docs.SwaggerInfo.Version = "1.0"
+	docs.SwaggerInfo.BasePath = "/api/v1"
 
 	s.echo.GET("/swagger/*", echoSwagger.WrapHandler)
 	s.echo.Use(middleware.Logger())
