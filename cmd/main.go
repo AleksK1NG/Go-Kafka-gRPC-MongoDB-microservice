@@ -17,10 +17,18 @@ import (
 // @title Products microservice
 // @version 1.0
 // @description Products REST API
+// @termsOfService http://swagger.io/terms/
+
 // @contact.name Alexander Bryksin
 // @contact.url https://github.com/AleksK1NG
 // @contact.email alexander.bryksin@yandex.ru
+
+// @license.name Apache 2.0
+// @license.url http://www.apache.org/licenses/LICENSE-2.0.html
+
+// @host localhost:5007
 // @BasePath /api/v1
+
 func main() {
 	log.Println("Starting products service")
 	ctx, cancel := context.WithCancel(context.Background())

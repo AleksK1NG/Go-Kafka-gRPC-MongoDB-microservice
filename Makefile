@@ -77,3 +77,10 @@ logs-local:
 make_cert:
 	echo "Generating SSL certificates"
 	cd ./ssl && sh instructions.sh
+
+
+# ==============================================================================
+# Swagger
+swagger:
+	echo "Starting swagger generating"
+	swag init -g **/**/*.go
