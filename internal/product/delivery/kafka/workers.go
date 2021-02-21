@@ -4,12 +4,19 @@ import (
 	"context"
 	"encoding/json"
 	"sync"
+	"time"
 
+	"github.com/avast/retry-go"
 	"github.com/opentracing/opentracing-go"
 	"github.com/opentracing/opentracing-go/log"
 	"github.com/segmentio/kafka-go"
 
 	"github.com/AleksK1NG/products-microservice/internal/models"
+)
+
+const (
+	retryAttempts = 1
+	retryDelay    = 1 * time.Second
 )
 
 func (pcg *ProductsConsumerGroup) createProductWorker(
@@ -53,23 +60,41 @@ func (pcg *ProductsConsumerGroup) createProductWorker(
 			continue
 		}
 
-		created, err := pcg.productsUC.Create(ctx, &prod)
-		if err != nil {
+		if err := pcg.validate.StructCtx(ctx, prod); err != nil {
+			errorMessages.Inc()
+			pcg.log.Errorf("validate.StructCtx", err)
+			continue
+		}
+
+		if err := retry.Do(func() error {
+			created, err := pcg.productsUC.Create(ctx, &prod)
+			if err != nil {
+				return err
+			}
+			pcg.log.Infof("created product: %v", created)
+			return nil
+		},
+			retry.Attempts(retryAttempts),
+			retry.Delay(retryDelay),
+			retry.Context(ctx),
+		); err != nil {
+			errorMessages.Inc()
+
 			if err := pcg.publishErrorMessage(ctx, w, m, err); err != nil {
-				errorMessages.Inc()
-				pcg.log.Errorf("productsUC.Create.publishErrorMessage", err)
+				pcg.log.Errorf("publishErrorMessage", err)
 				continue
 			}
+			pcg.log.Errorf("productsUC.Create.publishErrorMessage", err)
+			continue
 		}
 
 		if err := r.CommitMessages(ctx, m); err != nil {
 			errorMessages.Inc()
-			pcg.log.Errorf("FetchMessage", err)
+			pcg.log.Errorf("CommitMessages", err)
 			continue
 		}
 
 		successMessages.Inc()
-		pcg.log.Infof("Created product: %v", created)
 	}
 }
 
@@ -114,22 +139,40 @@ func (pcg *ProductsConsumerGroup) updateProductWorker(
 			continue
 		}
 
-		updated, err := pcg.productsUC.Update(ctx, &prod)
-		if err != nil {
+		if err := pcg.validate.StructCtx(ctx, prod); err != nil {
+			errorMessages.Inc()
+			pcg.log.Errorf("validate.StructCtx", err)
+			continue
+		}
+
+		if err := retry.Do(func() error {
+			created, err := pcg.productsUC.Update(ctx, &prod)
+			if err != nil {
+				return err
+			}
+			pcg.log.Debugf("updated product: %v", created)
+			return nil
+		},
+			retry.Attempts(retryAttempts),
+			retry.Delay(retryDelay),
+			retry.Context(ctx),
+		); err != nil {
+			errorMessages.Inc()
+
 			if err := pcg.publishErrorMessage(ctx, w, m, err); err != nil {
-				errorMessages.Inc()
-				pcg.log.Errorf("productsUC.Update.publishErrorMessage", err)
+				pcg.log.Errorf("publishErrorMessage", err)
 				continue
 			}
+			pcg.log.Errorf("productsUC.Create.publishErrorMessage", err)
+			continue
 		}
 
 		if err := r.CommitMessages(ctx, m); err != nil {
 			errorMessages.Inc()
-			pcg.log.Errorf("FetchMessage", err)
+			pcg.log.Errorf("CommitMessages", err)
 			continue
 		}
 
 		successMessages.Inc()
-		pcg.log.Infof("Update product: %v", updated)
 	}
 }

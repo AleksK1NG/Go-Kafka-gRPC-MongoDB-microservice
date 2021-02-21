@@ -100,9 +100,7 @@ func (s *server) Run() error {
 	productsService.RegisterProductsServiceServer(grpcServer, productService)
 	grpc_prometheus.Register(grpcServer)
 
-	s.log.Infof("STARTING KAFKA CONFIG ****************: %-v", s.cfg.Kafka)
-
-	productsCG := kafka.NewProductsConsumerGroup(s.cfg.Kafka.Brokers, "products_group", s.log, s.cfg, productUC)
+	productsCG := kafka.NewProductsConsumerGroup(s.cfg.Kafka.Brokers, "products_group", s.log, s.cfg, productUC, validate)
 	productsCG.RunConsumers(ctx, cancel)
 
 	go func() {
