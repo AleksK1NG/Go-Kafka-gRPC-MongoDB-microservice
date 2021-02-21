@@ -14,6 +14,13 @@ import (
 	"github.com/AleksK1NG/products-microservice/pkg/mongodb"
 )
 
+// @title Products microservice
+// @version 1.0
+// @description Products REST API
+// @contact.name Alexander Bryksin
+// @contact.url https://github.com/AleksK1NG
+// @contact.email alexander.bryksin@yandex.ru
+// @BasePath /api/v1
 func main() {
 	log.Println("Starting products service")
 	ctx, cancel := context.WithCancel(context.Background())
