@@ -17,6 +17,7 @@ type Config struct {
 	Metrics    Metrics
 	MongoDB    MongoDB
 	Kafka      Kafka
+	Http       Http
 }
 
 // Server config
@@ -29,6 +30,16 @@ type Server struct {
 	MaxConnectionIdle time.Duration
 	MaxConnectionAge  time.Duration
 	Kafka             Kafka
+}
+
+type Http struct {
+	Port              string
+	PprofPort         string
+	Timeout           time.Duration
+	ReadTimeout       time.Duration
+	WriteTimeout      time.Duration
+	CookieLifeTime    int
+	SessionCookieName string
 }
 
 // Logger config
