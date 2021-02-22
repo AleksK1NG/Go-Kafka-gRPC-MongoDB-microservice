@@ -18,6 +18,7 @@ type Config struct {
 	MongoDB    MongoDB
 	Kafka      Kafka
 	Http       Http
+	Redis      Redis
 }
 
 // Server config
@@ -73,6 +74,18 @@ type MongoDB struct {
 
 type Kafka struct {
 	Brokers []string
+}
+
+type Redis struct {
+	RedisAddr      string
+	RedisPassword  string
+	RedisDB        string
+	RedisDefaultDB string
+	MinIdleConn    int
+	PoolSize       int
+	PoolTimeout    int
+	Password       string
+	DB             int
 }
 
 func exportConfig() error {

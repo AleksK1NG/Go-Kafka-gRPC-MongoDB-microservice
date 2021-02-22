@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/go-playground/validator/v10"
+	"github.com/go-redis/redis/v8"
 	grpcrecovery "github.com/grpc-ecosystem/go-grpc-middleware/recovery"
 	grpc_ctxtags "github.com/grpc-ecosystem/go-grpc-middleware/tags"
 	grpc_opentracing "github.com/grpc-ecosystem/go-grpc-middleware/tracing/opentracing"
@@ -55,11 +56,12 @@ type server struct {
 	tracer  opentracing.Tracer
 	mongoDB *mongo.Client
 	echo    *echo.Echo
+	redis   *redis.Client
 }
 
 // NewServer constructor
-func NewServer(log logger.Logger, cfg *config.Config, tracer opentracing.Tracer, mongoDB *mongo.Client) *server {
-	return &server{log: log, cfg: cfg, tracer: tracer, mongoDB: mongoDB, echo: echo.New()}
+func NewServer(log logger.Logger, cfg *config.Config, tracer opentracing.Tracer, mongoDB *mongo.Client, redis *redis.Client) *server {
+	return &server{log: log, cfg: cfg, tracer: tracer, mongoDB: mongoDB, echo: echo.New(), redis: redis}
 }
 
 // Run Start server
@@ -70,7 +72,8 @@ func (s *server) Run() error {
 	validate := validator.New()
 
 	productMongoRepo := repository.NewProductMongoRepo(s.mongoDB)
-	productUC := usecase.NewProductUC(productMongoRepo, s.log)
+	productRedisRepo := repository.NewProductRedisRepository(s.redis)
+	productUC := usecase.NewProductUC(productMongoRepo, productRedisRepo, s.log)
 
 	im := interceptors.NewInterceptorManager(s.log, s.cfg)
 	mw := middlewares.NewMiddlewareManager(s.log, s.cfg)

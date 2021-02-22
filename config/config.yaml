@@ -44,3 +44,14 @@ MongoDB:
   User: "admin"
   Password: "admin"
   DB: "products"
+
+Redis:
+  RedisAddr: localhost:6379
+  RedisPassword:
+  RedisDb: 0
+  RedisDefaultDB: 0
+  MinIdleConn: 200
+  PoolSize: 12000
+  PoolTimeout: 240
+  Password: ""
+  DB: 0
