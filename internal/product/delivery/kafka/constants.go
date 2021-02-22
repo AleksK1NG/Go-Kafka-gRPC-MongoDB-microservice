@@ -36,9 +36,9 @@ const (
 	writerWriteTimeout = 10 * time.Second
 
 	createProductTopic   = "create-product"
-	createProductWorkers = 16
+	createProductWorkers = 3
 	updateProductTopic   = "update-product"
-	updateProductWorkers = 16
+	updateProductWorkers = 3
 
 	deadLetterQueueTopic = "dead-letter-queue"
 

@@ -9,7 +9,8 @@ Server:
   MaxConnectionAge: 5
 
 Kafka:
-  Brokers: ["host.docker.internal:9091", "host.docker.internal:9092", "host.docker.internal:9093"]
+  Brokers: ["localhost:9091", "localhost:9092", "localhost:9093"]
+#  Brokers: ["host.docker.internal:9091", "host.docker.internal:9092", "host.docker.internal:9093"]
 
 Logger:
   DisableCaller: false
