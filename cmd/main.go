@@ -12,6 +12,7 @@ import (
 	"github.com/AleksK1NG/products-microservice/pkg/kafka"
 	"github.com/AleksK1NG/products-microservice/pkg/logger"
 	"github.com/AleksK1NG/products-microservice/pkg/mongodb"
+	"github.com/AleksK1NG/products-microservice/pkg/redis"
 )
 
 // @title Products microservice
@@ -81,6 +82,9 @@ func main() {
 	}
 	appLogger.Infof("Kafka connected: %v", brokers)
 
-	s := server.NewServer(appLogger, cfg, tracer, mongoDBConn)
+	redisClient := redis.NewRedisClient(cfg)
+	appLogger.Info("Redis connected")
+
+	s := server.NewServer(appLogger, cfg, tracer, mongoDBConn, redisClient)
 	appLogger.Fatal(s.Run())
 }

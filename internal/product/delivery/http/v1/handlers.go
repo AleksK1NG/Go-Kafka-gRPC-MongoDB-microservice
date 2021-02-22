@@ -128,7 +128,7 @@ func (p *productHandlers) GetByIDProduct() echo.HandlerFunc {
 		defer span.Finish()
 		getByIdRequests.Inc()
 
-		objectID, err := primitive.ObjectIDFromHex(c.QueryParam("product_id"))
+		objectID, err := primitive.ObjectIDFromHex(c.Param("product_id"))
 		if err != nil {
 			p.log.Errorf("primitive.ObjectIDFromHex: %v", err)
 			errorRequests.Inc()

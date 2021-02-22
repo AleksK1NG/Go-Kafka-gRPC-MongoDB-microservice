@@ -20,11 +20,11 @@ Logger:
 
 Metrics:
   Port: ":7070"
-  Url: 0.0.0.0:7071
+  Url: "host.docker.internal:7071"
   ServiceName: products_microservice
 
 Jaeger:
-  Host: host.docker.internal:6831
+  Host: "host.docker.internal:6831"
   ServiceName: products_microservice
   LogSpans: false
 
@@ -33,3 +33,14 @@ MongoDB:
   User: "admin"
   Password: "admin"
   DB: "products"
+
+Redis:
+  RedisAddr: "host.docker.internal:6379"
+  RedisPassword:
+  RedisDb: 0
+  RedisDefaultDB: 0
+  MinIdleConn: 200
+  PoolSize: 12000
+  PoolTimeout: 240
+  Password: ""
+  DB: 0

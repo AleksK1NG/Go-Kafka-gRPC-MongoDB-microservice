@@ -16,3 +16,10 @@ type MongoRepository interface {
 	GetByID(ctx context.Context, productID primitive.ObjectID) (*models.Product, error)
 	Search(ctx context.Context, search string, pagination *utils.Pagination) (*models.ProductsList, error)
 }
+
+// RedisRepository Product
+type RedisRepository interface {
+	SetProduct(ctx context.Context, product *models.Product) error
+	GetProductByID(ctx context.Context, productID primitive.ObjectID) (*models.Product, error)
+	DeleteProduct(ctx context.Context, productID primitive.ObjectID) error
+}
