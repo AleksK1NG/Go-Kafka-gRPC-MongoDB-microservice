@@ -45,6 +45,7 @@ const (
 	stackSize       = 1 << 10 // 1 KB
 	csrfTokenHeader = "X-CSRF-Token"
 	bodyLimit       = "2M"
+	kafkaGroupID    = "products_group"
 )
 
 // server
@@ -69,7 +70,7 @@ func (s *server) Run() error {
 	validate := validator.New()
 
 	productMongoRepo := repository.NewProductMongoRepo(s.mongoDB)
-	productUC := usecase.NewProductUC(productMongoRepo, s.log, validate)
+	productUC := usecase.NewProductUC(productMongoRepo, s.log)
 
 	im := interceptors.NewInterceptorManager(s.log, s.cfg)
 	mw := middlewares.NewMiddlewareManager(s.log, s.cfg)
@@ -117,7 +118,7 @@ func (s *server) Run() error {
 	productHandlers := productsHttpV1.NewProductHandlers(s.log, productUC, validate, v1.Group("/products"), mw)
 	productHandlers.MapRoutes()
 
-	productsCG := kafka.NewProductsConsumerGroup(s.cfg.Kafka.Brokers, "products_group", s.log, s.cfg, productUC, validate)
+	productsCG := kafka.NewProductsConsumerGroup(s.cfg.Kafka.Brokers, kafkaGroupID, s.log, s.cfg, productUC, validate)
 	productsCG.RunConsumers(ctx, cancel)
 
 	go func() {

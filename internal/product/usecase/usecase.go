@@ -3,7 +3,6 @@ package usecase
 import (
 	"context"
 
-	"github.com/go-playground/validator/v10"
 	"github.com/opentracing/opentracing-go"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 
@@ -17,12 +16,11 @@ import (
 type productUC struct {
 	productRepo product.MongoRepository
 	log         logger.Logger
-	validate    *validator.Validate
 }
 
 // NewProductUC productUC constructor
-func NewProductUC(productRepo product.MongoRepository, log logger.Logger, validate *validator.Validate) *productUC {
-	return &productUC{productRepo: productRepo, log: log, validate: validate}
+func NewProductUC(productRepo product.MongoRepository, log logger.Logger) *productUC {
+	return &productUC{productRepo: productRepo, log: log}
 }
 
 // Create Create new product
