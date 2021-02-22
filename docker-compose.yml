@@ -3,7 +3,6 @@ version: "3.8"
 services:
   app:
     container_name: microservice
-    #    image: alexanderbryksin/products_microservice:latest
     build:
       context: .
       dockerfile: Dockerfile
@@ -26,9 +25,8 @@ services:
       - kafka2
       - kafka3
       - zookeeper
-    network_mode: host
-#    networks:
-#      - host
+    networks:
+      - products_network
 
   zookeeper:
     container_name: zookeeper
@@ -44,9 +42,8 @@ services:
     volumes:
       - ./data/zookeeper/data:/data
       - ./data/zookeeper/datalog:/datalog
-    network_mode: host
-#    networks:
-#      - host
+    networks:
+      - products_network
 
 
   kafka1:
@@ -67,9 +64,8 @@ services:
       - ./data/kafka1/data:/var/lib/kafka/data
     depends_on:
       - zookeeper
-    network_mode: host
-#    networks:
-#      - host
+    networks:
+      - products_network
 
   kafka2:
     container_name: kafka2
@@ -88,9 +84,8 @@ services:
       - ./data/kafka2/data:/var/lib/kafka/data
     depends_on:
       - zookeeper
-    network_mode: host
-#    networks:
-#      - host
+    networks:
+      - products_network
 
   kafka3:
     container_name: kafka3
@@ -110,9 +105,8 @@ services:
       - ./data/kafka3/data:/var/lib/kafka/data
     depends_on:
       - zookeeper
-    network_mode: host
-#    networks:
-#      - host
+    networks:
+      - products_network
 
   kafdrop:
     container_name: kafdrop
@@ -126,9 +120,8 @@ services:
       - kafka1
       - kafka2
       - kafka3
-    network_mode: host
-#    networks:
-#      - host
+    networks:
+      - products_network
 
   redis:
     image: redis:6-alpine
@@ -136,9 +129,8 @@ services:
     container_name: user_redis
     ports:
       - "6379:6379"
-    network_mode: host
-#    networks:
-#      - host
+    networks:
+      - products_network
 
   prometheus:
     container_name: prometheus_container
@@ -154,9 +146,8 @@ services:
       - '--web.console.templates=/usr/share/prometheus/consoles'
     ports:
       - '9090:9090'
-    network_mode: host
-#    networks:
-#      - host
+    networks:
+      - products_network
 
 
   node_exporter:
@@ -165,9 +156,8 @@ services:
     image: prom/node-exporter
     ports:
       - '9101:9100'
-    network_mode: host
-#    networks:
-#      - host
+    networks:
+      - products_network
 
   grafana:
     container_name: grafana_container
@@ -175,9 +165,8 @@ services:
     image: grafana/grafana
     ports:
       - '3000:3000'
-    network_mode: host
-#    networks:
-#      - host
+    networks:
+      - products_network
 
   jaeger:
     container_name: jaeger_container
@@ -194,9 +183,8 @@ services:
       - 14268:14268
       - 14250:14250
       - 9411:9411
-#    networks:
-#      - host
-    network_mode: host
+    networks:
+      - products_network
 
   mongodb:
     image: mongo:latest
@@ -210,14 +198,13 @@ services:
       - 27017:27017
     volumes:
       - mongodb_data_container:/data/db
-#    networks:
-#      - host
-    network_mode: host
+    networks:
+      - products_network
 
 volumes:
   mongodb_data_container:
 
-#networks:
-#  host:
-#    driver: host
+networks:
+  products_network:
+    driver: bridge
 
