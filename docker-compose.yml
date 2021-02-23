@@ -10,7 +10,8 @@ services:
       - 5000:5000
       - 5555:5555
     environment:
-      - PORT=:5000
+      - GRPC_PORT=:5000
+      - HTTP_PORT=:5007
       - MODE=DOCKER
     restart: always
     depends_on:

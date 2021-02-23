@@ -82,3 +82,9 @@ make_cert:
 swagger:
 	echo "Starting swagger generating"
 	swag init -g **/**/*.go
+
+# ==============================================================================
+# MongoDB
+
+mongo:
+	cd ./scripts && mongo admin -u admin -p admin < init.js

@@ -8,6 +8,11 @@ import (
 	"github.com/spf13/viper"
 )
 
+const (
+	GRPC_PORT = "GRPC_PORT"
+	HTTP_PORT = "HTTP_PORT"
+)
+
 // Config of application
 type Config struct {
 	AppVersion string
@@ -114,6 +119,16 @@ func ParseConfig() (*Config, error) {
 	if err != nil {
 		log.Printf("unable to decode into struct, %v", err)
 		return nil, err
+	}
+
+	gRPCPort := os.Getenv(GRPC_PORT)
+	if gRPCPort != "" {
+		c.Server.Port = gRPCPort
+	}
+
+	httpPort := os.Getenv(HTTP_PORT)
+	if httpPort != "" {
+		c.Http.Port = httpPort
 	}
 
 	return &c, nil
