@@ -1,7 +1,11 @@
 .PHONY:
 
 # ==============================================================================
-# Docker support
+# Docker
+
+develop:
+	echo "Starting develop docker compose"
+	docker-compose -f docker-compose.yml up --build
 
 local:
 	echo "Starting local docker compose"

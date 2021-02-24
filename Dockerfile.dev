@@ -7,7 +7,7 @@ ENV CONFIG=docker
 
 COPY . /app
 
-RUN go mod download
+#RUN go mod download
 
 EXPOSE 5000 40000
 

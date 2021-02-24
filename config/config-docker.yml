@@ -1,6 +1,6 @@
 AppVersion: 1.0.0
 Server:
-  Port: :5555
+  Port: :5000
   Development: true
   Timeout: 15
   ReadTimeout: 5
@@ -9,8 +9,9 @@ Server:
   MaxConnectionAge: 5
 
 Kafka:
-  Brokers: ["localhost:9091", "localhost:9092", "localhost:9093"]
-#  Brokers: ["host.docker.internal:9091", "host.docker.internal:9092", "host.docker.internal:9093"]
+#  Brokers: ["kafka1:9091", "kafka2:9092", "kafka3:9093"]
+#  Brokers: ["localhost:9091", "localhost:9092", "localhost:9093"]
+  Brokers: ["host.docker.internal:9091", "host.docker.internal:9092", "host.docker.internal:9093"]
 
 Logger:
   DisableCaller: false
