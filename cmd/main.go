@@ -31,7 +31,7 @@ import (
 // @BasePath /api/v1
 
 func main() {
-	log.Println("Starting products service PRO =D")
+	log.Println("Starting products microservice")
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 	cfg, err := config.ParseConfig()

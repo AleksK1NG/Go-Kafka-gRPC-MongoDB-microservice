@@ -7,8 +7,6 @@ import (
 	"time"
 
 	"github.com/avast/retry-go"
-	"github.com/opentracing/opentracing-go"
-	"github.com/opentracing/opentracing-go/log"
 	"github.com/segmentio/kafka-go"
 
 	"github.com/AleksK1NG/products-microservice/internal/models"
@@ -27,11 +25,6 @@ func (pcg *ProductsConsumerGroup) createProductWorker(
 	wg *sync.WaitGroup,
 	workerID int,
 ) {
-	span, ctx := opentracing.StartSpanFromContext(ctx, "ProductsConsumerGroup.createProductWorker")
-	defer span.Finish()
-
-	span.LogFields(log.String("ConsumerGroup", r.Config().GroupID))
-
 	defer wg.Done()
 	defer cancel()
 
@@ -106,11 +99,6 @@ func (pcg *ProductsConsumerGroup) updateProductWorker(
 	wg *sync.WaitGroup,
 	workerID int,
 ) {
-	span, ctx := opentracing.StartSpanFromContext(ctx, "ProductsConsumerGroup.updateProductWorker")
-	defer span.Finish()
-
-	span.LogFields(log.String("ConsumerGroup", r.Config().GroupID))
-
 	defer wg.Done()
 	defer cancel()
 

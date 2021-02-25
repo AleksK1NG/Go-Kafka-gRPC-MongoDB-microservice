@@ -18,6 +18,7 @@
 * [retry-go](https://github.com/avast/retry-go) - Simple golang library for retry mechanism
 * [kafdrop](https://github.com/obsidiandynamics/kafdrop) - Kafka Web UI
 
+
 ### Jaeger UI:
 
 http://localhost:16686
@@ -38,3 +39,11 @@ http://localhost:9000/
 
 https://localhost:5007/swagger/index.html
 
+For local development:
+```
+make local // runs docker-compose.local.yml
+make crate_topics // create kafka topics
+make mongo // load js init script to mongo docker container
+make cert // generate local SLL certificates
+make swagger // generate swagger documentation
+```

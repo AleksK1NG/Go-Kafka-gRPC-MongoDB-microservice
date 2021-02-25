@@ -75,7 +75,7 @@ logs-local:
 # ==============================================================================
 # Make local SSL Certificate
 
-make_cert:
+cert:
 	echo "Generating SSL certificates"
 	cd ./ssl && sh instructions.sh
 
