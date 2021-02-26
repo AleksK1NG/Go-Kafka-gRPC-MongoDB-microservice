@@ -70,9 +70,13 @@ func (s *server) Run() error {
 
 	validate := validator.New()
 
+	productsProducer := kafka.NewProductsProducer(s.log, s.cfg)
+	productsProducer.Run()
+	defer productsProducer.Close()
+
 	productMongoRepo := repository.NewProductMongoRepo(s.mongoDB)
 	productRedisRepo := repository.NewProductRedisRepository(s.redis)
-	productUC := usecase.NewProductUC(productMongoRepo, productRedisRepo, s.log)
+	productUC := usecase.NewProductUC(productMongoRepo, productRedisRepo, s.log, productsProducer)
 
 	im := interceptors.NewInterceptorManager(s.log, s.cfg)
 	mw := middlewares.NewMiddlewareManager(s.log, s.cfg)

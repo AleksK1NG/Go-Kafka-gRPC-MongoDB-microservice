@@ -63,16 +63,12 @@ func (p *productMongoRepo) Update(ctx context.Context, product *models.Product) 
 
 	collection := p.mongoDB.Database(productsDB).Collection(productsCollection)
 
-	upsert := true
-	after := options.After
-	opts := &options.FindOneAndUpdateOptions{
-		ReturnDocument: &after,
-		Upsert:         &upsert,
-	}
+	ops := options.FindOneAndUpdate()
+	ops.SetReturnDocument(options.After)
+	ops.SetUpsert(true)
 
-	product.UpdatedAt = time.Now().UTC()
 	var prod models.Product
-	if err := collection.FindOneAndUpdate(ctx, bson.M{"_id": product.ProductID}, bson.M{"$set": product}, opts).Decode(&prod); err != nil {
+	if err := collection.FindOneAndUpdate(ctx, bson.M{"_id": product.ProductID}, bson.M{"$set": product}, ops).Decode(&prod); err != nil {
 		return nil, errors.Wrap(err, "Decode")
 	}
 

@@ -134,11 +134,11 @@ func (pcg *ProductsConsumerGroup) updateProductWorker(
 		}
 
 		if err := retry.Do(func() error {
-			created, err := pcg.productsUC.Update(ctx, &prod)
+			updated, err := pcg.productsUC.Update(ctx, &prod)
 			if err != nil {
 				return err
 			}
-			pcg.log.Debugf("updated product: %v", created)
+			pcg.log.Debugf("updated product: %v", updated)
 			return nil
 		},
 			retry.Attempts(retryAttempts),

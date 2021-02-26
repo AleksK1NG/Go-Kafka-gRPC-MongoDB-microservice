@@ -12,14 +12,14 @@ import (
 // Product models
 type Product struct {
 	ProductID   primitive.ObjectID `json:"productId" bson:"_id,omitempty"`
-	CategoryID  primitive.ObjectID `json:"CategoryId" bson:"CategoryId,omitempty"`
-	Name        string             `json:"name" bson:"name,omitempty" validate:"required,min=3,max=250"`
-	Description string             `json:"description" bson:"description,omitempty" validate:"required,min=3,max=500"`
-	Price       float64            `json:"price" bson:"price,omitempty" validate:"required"`
-	ImageURL    *string            `json:"imageUrl" bson:"imageUrl,omitempty"`
-	Photos      []string           `json:"photos" bson:"photos,omitempty"`
-	Quantity    int64              `json:"quantity" bson:"quantity,omitempty" validate:"required"`
-	Rating      int                `json:"rating" bson:"rating,omitempty" validate:"required,min=0,max=10"`
+	CategoryID  primitive.ObjectID `json:"categoryId,omitempty" bson:"categoryId,omitempty"`
+	Name        string             `json:"name,omitempty" bson:"name,omitempty" validate:"required,min=3,max=250"`
+	Description string             `json:"description,omitempty" bson:"description,omitempty" validate:"required,min=3,max=500"`
+	Price       float64            `json:"price,omitempty" bson:"price,omitempty" validate:"required"`
+	ImageURL    *string            `json:"imageUrl,omitempty" bson:"imageUrl,omitempty"`
+	Photos      []string           `json:"photos,omitempty" bson:"photos,omitempty"`
+	Quantity    int64              `json:"quantity,omitempty" bson:"quantity,omitempty" validate:"required"`
+	Rating      int                `json:"rating,omitempty" bson:"rating,omitempty" validate:"required,min=0,max=10"`
 	CreatedAt   time.Time          `json:"createdAt" bson:"createdAt,omitempty"`
 	UpdatedAt   time.Time          `json:"updatedAt" bson:"updatedAt,omitempty"`
 }

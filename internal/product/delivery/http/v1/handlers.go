@@ -62,14 +62,13 @@ func (p *productHandlers) CreateProduct() echo.HandlerFunc {
 			return httpErrors.ErrorCtxResponse(c, err)
 		}
 
-		created, err := p.productUC.Create(ctx, &prod)
-		if err != nil {
-			p.log.Errorf("productUC.Create: %v", err)
+		if err := p.productUC.PublishCreate(ctx, &prod); err != nil {
+			p.log.Errorf("productUC.PublishCreate: %v", err)
 			return httpErrors.ErrorCtxResponse(c, err)
 		}
 
 		successRequests.Inc()
-		return c.JSON(http.StatusCreated, created)
+		return c.NoContent(http.StatusCreated)
 	}
 }
 
@@ -95,21 +94,27 @@ func (p *productHandlers) UpdateProduct() echo.HandlerFunc {
 			return httpErrors.ErrorCtxResponse(c, err)
 		}
 
+		prodID, err := primitive.ObjectIDFromHex(c.Param("product_id"))
+		if err != nil {
+			p.log.Errorf("primitive.ObjectIDFromHex: %v", err)
+			errorRequests.Inc()
+			return httpErrors.ErrorCtxResponse(c, err)
+		}
+		prod.ProductID = prodID
+
 		if err := p.validate.StructCtx(ctx, &prod); err != nil {
 			p.log.Errorf("validate.StructCtx: %v", err)
 			errorRequests.Inc()
 			return httpErrors.ErrorCtxResponse(c, err)
 		}
 
-		upd, err := p.productUC.Update(ctx, &prod)
-		if err != nil {
-			p.log.Errorf("productUC.Update: %v", err)
-			errorRequests.Inc()
+		if err := p.productUC.PublishUpdate(ctx, &prod); err != nil {
+			p.log.Errorf("productUC.PublishUpdate: %v", err)
 			return httpErrors.ErrorCtxResponse(c, err)
 		}
 
 		successRequests.Inc()
-		return c.JSON(http.StatusOK, upd)
+		return c.NoContent(http.StatusOK)
 	}
 }
 
